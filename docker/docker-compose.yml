@@ -1,61 +1,48 @@
-version: "3.9"
-
-# ============================================================
-# agri-price-dwh — Docker Compose
-# Cách dùng:
-#   Chạy ingest:    docker-compose run --rm ingest
-#   Chạy dbt:       docker-compose run --rm dbt dbt run
-#   Chạy dashboard: docker-compose up dashboard
-# ============================================================
-
-services:
-
-  # ── Service 1: Ingest ──────────────────────────────────────
-  # Thu thập dữ liệu từ FAO và World Bank, nạp vào MotherDuck
+﻿services:
   ingest:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile
     container_name: agri_ingest
-    env_file: .env
+    env_file: ../.env
     volumes:
-      - ./logs:/app/logs
-      - ./ingest:/app/ingest
+      - ../logs:/app/logs
+      - ../ingest:/app/ingest
     command: python ingest/fao_ingest.py
     networks:
       - agri_net
 
-  # ── Service 2: dbt ─────────────────────────────────────────
-  # Chạy transformation Bronze → Silver → Gold
   dbt:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile
     container_name: agri_dbt
-    env_file: .env
+    env_file: ../.env
     volumes:
-      - ./dbt:/app/dbt
-      - ./logs:/app/logs
+      - ../dbt:/app/dbt
+      - ../logs:/app/logs
     working_dir: /app/dbt
     command: dbt run --profiles-dir .
     networks:
       - agri_net
 
-  # ── Service 3: Dashboard ───────────────────────────────────
-  # Streamlit app — truy cập tại http://localhost:8501
   dashboard:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile
     container_name: agri_dashboard
-    env_file: .env
+    env_file: ../.env
     ports:
       - "8501:8501"
     volumes:
-      - ./dashboard:/app/dashboard
+      - ../dashboard:/app/dashboard
     working_dir: /app/dashboard
     command: >
-      streamlit run app.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --browser.gatherUsageStats=false
+      streamlit run app.py
+      --server.port=8501
+      --server.address=0.0.0.0
+      --server.headless=true
+      --browser.gatherUsageStats=false
     networks:
       - agri_net
     depends_on:
