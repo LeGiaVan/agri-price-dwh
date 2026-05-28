@@ -1,1 +1,1 @@
-{"_invocation_id": "8b7b25c1-2b66-4da3-9a2c-c40b7e5ccde3", "linked": {"0": {"name": "source.agri_dwh.bronze.fao_prices_raw", "type": "source"}, "1": {"name": "source.agri_dwh.bronze.wb_prices_raw", "type": "source"}}}
+{"_invocation_id": "d3ba127d-bcf4-428d-a4df-dab8c250b4be", "linked": {"0": {"name": "source.agri_dwh.bronze.fao_prices_raw", "type": "source"}, "1": {"name": "source.agri_dwh.bronze.wb_prices_raw", "type": "source"}}}
