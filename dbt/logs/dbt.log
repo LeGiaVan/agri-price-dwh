@@ -1,0 +1,30 @@
+[0m16:12:15.367862 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B20F07C20>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B245C1250>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B239CC710>]}
+
+
+============================== 16:12:15.377162 | 840ab52f-f3ee-4697-975a-b5ee6926ee3e ==============================
+[0m16:12:15.377162 [info ] [MainThread]: Running with dbt=1.11.11
+[0m16:12:15.378172 [debug] [MainThread]: running dbt with arguments {'profiles_dir': 'C:\\Users\\PC\\.dbt', 'no_print': 'None', 'invocation_command': 'dbt init agri_dwh', 'printer_width': '80', 'write_json': 'True', 'warn_error': 'None', 'indirect_selection': 'eager', 'partial_parse': 'True', 'fail_fast': 'False', 'send_anonymous_usage_stats': 'True', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'log_path': 'logs', 'use_experimental_parser': 'False', 'version_check': 'True', 'introspect': 'True', 'quiet': 'False', 'empty': 'None', 'log_cache_events': 'False', 'debug': 'False', 'log_format': 'default', 'use_colors': 'True', 'cache_selected_only': 'False', 'target_path': 'None'}
+[0m16:12:15.406298 [info ] [MainThread]: Creating dbt configuration folder at C:\Users\PC\.dbt
+[0m16:12:15.409139 [debug] [MainThread]: Starter project path: C:\Users\PC\AppData\Local\Programs\Python\Python312\Lib\site-packages\dbt\include\starter_project
+[0m16:12:15.447851 [info ] [MainThread]: 
+Your new dbt project "agri_dwh" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m16:12:15.449412 [info ] [MainThread]: Setting up your profile.
+[0m16:13:20.131355 [info ] [MainThread]: Profile agri_dwh written to C:\Users\PC\.dbt\profiles.yml using target's sample configuration. Once updated, you'll be able to start developing with dbt.
+[0m16:13:20.131355 [debug] [MainThread]: Command `dbt init` succeeded at 16:13:20.131355 after 64.95 seconds
+[0m16:13:20.132821 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B245F42C0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B245F42F0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B260B2DB0>]}
+[0m16:13:20.132821 [debug] [MainThread]: Flushing usage events
+[0m16:13:21.188196 [debug] [MainThread]: An error was encountered while trying to flush usage events

@@ -1,0 +1,1 @@
+.env\n.dbt/\n__pycache__/\n*.pyc\nml/models/*.h5\nlogs/*.log

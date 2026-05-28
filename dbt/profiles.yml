@@ -1,0 +1,7 @@
+agri_dwh:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "md:agri_dwh?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      schema: gold

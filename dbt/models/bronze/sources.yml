@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: fao_prices_raw
+        description: "Dữ liệu thô từ FAO FAOSTAT — chưa qua xử lý"
+      - name: wb_prices_raw  
+        description: "Dữ liệu thô từ World Bank Commodity API"
