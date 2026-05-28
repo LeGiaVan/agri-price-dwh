@@ -1,0 +1,6 @@
+.env
+.dbt/
+__pycache__/
+*.pyc
+ml/models/*.h5
+logs/*.log
