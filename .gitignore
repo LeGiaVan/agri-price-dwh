@@ -1,6 +1,36 @@
 .env
-.dbt/
+.env.*
+.venv/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.pyre/
+
+# dbt artifacts and logs
+.dbt/
+dbt/logs/
+dbt/target/
+
+# Model artifacts
 ml/models/*.h5
-logs/*.log
+
+# Logs
+logs/
+*.log
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS generated
+Desktop.ini
