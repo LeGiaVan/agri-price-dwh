@@ -1,0 +1,33 @@
+name: Daily Ingest
+
+on:
+  schedule:
+    - cron: '0 17 * * *'   # 0h00 VN = 17h00 UTC
+  workflow_dispatch:        # Cho phép trigger thủ công để test
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # TODO (Thành viên 1): điền logic ingest vào đây
+      - name: Run FAO ingest
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: echo "placeholder - Thành viên 1 thay bằng: python ingest/fao_ingest.py"
+
+      - name: Run World Bank ingest
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: echo "placeholder - Thành viên 1 thay bằng: python ingest/worldbank_ingest.py"

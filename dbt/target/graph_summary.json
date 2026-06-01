@@ -1,0 +1,1 @@
+{"_invocation_id": "3cf95d44-ee88-4153-a9ce-1533166555da", "linked": {"0": {"name": "source.agri_dwh.bronze.fao_prices_raw", "type": "source"}, "1": {"name": "source.agri_dwh.bronze.wb_prices_raw", "type": "source"}}}

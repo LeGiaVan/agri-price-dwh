@@ -17,6 +17,9 @@ clean-targets:
 
 models:
   agri_dwh:
+    bronze:
+      +materialized: view
+      +schema: bronze
     silver:
       +materialized: table
       +schema: silver
