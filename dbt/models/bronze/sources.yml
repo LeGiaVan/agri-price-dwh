@@ -1,9 +1,11 @@
 version: 2
+
 sources:
   - name: bronze
     schema: bronze
+    description: "Raw ingestion tables loaded into MotherDuck by the ingest pipeline."
     tables:
       - name: fao_prices_raw
-        description: "Dữ liệu thô từ FAO FAOSTAT — chưa qua xử lý"
-      - name: wb_prices_raw  
-        description: "Dữ liệu thô từ World Bank Commodity API"
+        description: "Raw agricultural market data from FAO or HuggingFace before cleaning."
+      - name: wb_prices_raw
+        description: "Raw monthly commodity price data from the World Bank API before cleaning."

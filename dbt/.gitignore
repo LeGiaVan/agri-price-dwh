@@ -1,1 +1,10 @@
-.env\n.dbt/\n__pycache__/\n*.pyc\nml/models/*.h5\nlogs/*.log
+.env
+.dbt/
+__pycache__/
+*.pyc
+logs/*.log
+logs/
+target/
+dbt_packages/
+.duckdb_home/
+.user.yml
