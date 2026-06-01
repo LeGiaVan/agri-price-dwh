@@ -125,3 +125,143 @@ There are 3 unused configuration paths:
 [0m10:26:31.572306 [debug] [MainThread]: Command `dbt run` succeeded at 10:26:31.572115 after 1.92 seconds
 [0m10:26:31.574439 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f45d4591b50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f45e2585b50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f45df41a2d0>]}
 [0m10:26:31.576942 [debug] [MainThread]: Flushing usage events
+[0m04:11:41.434070 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91144ed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91267e90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff912b8310>]}
+
+
+============================== 04:11:41.441321 | 5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293 ==============================
+[0m04:11:41.441321 [info ] [MainThread]: Running with dbt=1.8.7
+[0m04:11:41.441653 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '.', 'debug': 'False', 'fail_fast': 'False', 'log_path': '/app/dbt/logs', 'warn_error': 'None', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt run --profiles-dir .', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m04:11:41.588623 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff910a0f10>]}
+[0m04:11:41.613334 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff936366d0>]}
+[0m04:11:41.604019 [info ] [MainThread]: Registered adapter: duckdb=1.8.4
+[0m04:11:41.634415 [debug] [MainThread]: checksum: 4af21dafb485259c48497ac86b711ddb1982f3d0f1c0ca4e09356de488b753c0, vars: {}, profile: , target: , version: 1.8.7
+[0m04:11:41.717380 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 1 files changed.
+[0m04:11:41.717764 [debug] [MainThread]: Partial parsing: updated file: agri_dwh://models/bronze/sources.yml
+[0m04:11:41.765362 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 3 unused configuration paths:
+- models.agri_dwh.silver
+- models.agri_dwh.gold
+- models.agri_dwh.bronze
+[0m04:11:41.770816 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff8d5d3650>]}
+[0m04:11:41.804854 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff8d565790>]}
+[0m04:11:41.805153 [info ] [MainThread]: Found 2 sources, 421 macros
+[0m04:11:41.805350 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '5ad78ce7-bd9d-4f36-8c22-ad0e57cd6293', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff8df2b4d0>]}
+[0m04:11:41.806100 [info ] [MainThread]: 
+[0m04:11:41.806293 [warn ] [MainThread]: Nothing to do. Try checking your model configs and model specification args
+[0m04:11:41.806539 [debug] [MainThread]: Command end result
+[0m04:11:41.820733 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 0.42020866, "process_user_time": 0.992562, "process_kernel_time": 0.325413, "process_mem_max_rss": "136268", "process_in_blocks": "25640", "process_out_blocks": "5210"}
+[0m04:11:41.821070 [debug] [MainThread]: Command `dbt run` succeeded at 04:11:41.821012 after 0.42 seconds
+[0m04:11:41.821312 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91179a50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff9117a810>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff914ee650>]}
+[0m04:11:41.821506 [debug] [MainThread]: Flushing usage events
+[0m04:17:42.284289 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7f013190>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7ee41c10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7ee4fc90>]}
+
+
+============================== 04:17:42.286241 | 9e78ca40-ab02-4f73-be42-72bd29ab0b29 ==============================
+[0m04:17:42.286241 [info ] [MainThread]: Running with dbt=1.8.7
+[0m04:17:42.286559 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'profiles_dir': '.', 'log_path': '/app/dbt/logs', 'debug': 'False', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'log_format': 'default', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt run --profiles-dir .', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'send_anonymous_usage_stats': 'True'}
+[0m04:17:42.437089 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '9e78ca40-ab02-4f73-be42-72bd29ab0b29', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7eeaddd0>]}
+[0m04:17:42.456249 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '9e78ca40-ab02-4f73-be42-72bd29ab0b29', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff81336410>]}
+[0m04:17:42.457802 [info ] [MainThread]: Registered adapter: duckdb=1.8.4
+[0m04:17:42.486412 [debug] [MainThread]: checksum: 4af21dafb485259c48497ac86b711ddb1982f3d0f1c0ca4e09356de488b753c0, vars: {}, profile: , target: , version: 1.8.7
+[0m04:17:42.574790 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m04:17:42.575194 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m04:17:42.575474 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 3 unused configuration paths:
+- models.agri_dwh.silver
+- models.agri_dwh.gold
+- models.agri_dwh.bronze
+[0m04:17:42.581574 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '9e78ca40-ab02-4f73-be42-72bd29ab0b29', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff79502850>]}
+[0m04:17:42.619945 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '9e78ca40-ab02-4f73-be42-72bd29ab0b29', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff79ff7550>]}
+[0m04:17:42.620227 [info ] [MainThread]: Found 2 sources, 421 macros
+[0m04:17:42.620510 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '9e78ca40-ab02-4f73-be42-72bd29ab0b29', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7bd96510>]}
+[0m04:17:42.621257 [info ] [MainThread]: 
+[0m04:17:42.621517 [warn ] [MainThread]: Nothing to do. Try checking your model configs and model specification args
+[0m04:17:42.622390 [debug] [MainThread]: Command end result
+[0m04:17:42.635747 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 0.37586966, "process_user_time": 0.882219, "process_kernel_time": 0.306013, "process_mem_max_rss": "134360", "process_in_blocks": "69184", "process_out_blocks": "1607"}
+[0m04:17:42.636024 [debug] [MainThread]: Command `dbt run` succeeded at 04:17:42.635982 after 0.38 seconds
+[0m04:17:42.636217 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7f291f90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7ef5bc90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff83dd6a50>]}
+[0m04:17:42.636392 [debug] [MainThread]: Flushing usage events
+[0m04:21:21.284042 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6e4de10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6e45910>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6d6bf90>]}
+
+
+============================== 04:21:21.286710 | 5c94a915-c5b1-4a6d-b996-e549fe74d23c ==============================
+[0m04:21:21.286710 [info ] [MainThread]: Running with dbt=1.8.7
+[0m04:21:21.287128 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '.', 'debug': 'False', 'fail_fast': 'False', 'log_path': '/app/dbt/logs', 'warn_error': 'None', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'empty': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'log_format': 'default', 'introspect': 'True', 'target_path': 'None', 'invocation_command': 'dbt run --profiles-dir .', 'send_anonymous_usage_stats': 'True'}
+[0m04:21:21.460648 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '5c94a915-c5b1-4a6d-b996-e549fe74d23c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6ca1790>]}
+[0m04:21:21.483661 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '5c94a915-c5b1-4a6d-b996-e549fe74d23c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb9176650>]}
+[0m04:21:21.485845 [info ] [MainThread]: Registered adapter: duckdb=1.8.4
+[0m04:21:21.516891 [debug] [MainThread]: checksum: 4af21dafb485259c48497ac86b711ddb1982f3d0f1c0ca4e09356de488b753c0, vars: {}, profile: , target: , version: 1.8.7
+[0m04:21:21.599673 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m04:21:21.599950 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m04:21:21.600185 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 3 unused configuration paths:
+- models.agri_dwh.bronze
+- models.agri_dwh.silver
+- models.agri_dwh.gold
+[0m04:21:21.605646 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '5c94a915-c5b1-4a6d-b996-e549fe74d23c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb31bd010>]}
+[0m04:21:21.639733 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '5c94a915-c5b1-4a6d-b996-e549fe74d23c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb27f3550>]}
+[0m04:21:21.640017 [info ] [MainThread]: Found 2 sources, 421 macros
+[0m04:21:21.640287 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '5c94a915-c5b1-4a6d-b996-e549fe74d23c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb278a790>]}
+[0m04:21:21.641001 [info ] [MainThread]: 
+[0m04:21:21.641223 [warn ] [MainThread]: Nothing to do. Try checking your model configs and model specification args
+[0m04:21:21.642145 [debug] [MainThread]: Command end result
+[0m04:21:21.653628 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 0.3928336, "process_user_time": 1.028955, "process_kernel_time": 0.362059, "process_mem_max_rss": "133468", "process_in_blocks": "74456", "process_out_blocks": "1607"}
+[0m04:21:21.653859 [debug] [MainThread]: Command `dbt run` succeeded at 04:21:21.653822 after 0.39 seconds
+[0m04:21:21.654027 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6d8c590>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffb6ca1b10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffffbbc0a110>]}
+[0m04:21:21.654178 [debug] [MainThread]: Flushing usage events
+[0m04:26:43.260423 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff920ad810>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91ff7690>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff9232e550>]}
+
+
+============================== 04:26:43.262330 | 3f40702f-7c4d-456a-9279-f8705346b7f1 ==============================
+[0m04:26:43.262330 [info ] [MainThread]: Running with dbt=1.8.7
+[0m04:26:43.262682 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '.', 'fail_fast': 'False', 'debug': 'False', 'log_path': '/app/dbt/logs', 'version_check': 'True', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'False', 'quiet': 'False', 'no_print': 'None', 'log_format': 'default', 'introspect': 'True', 'invocation_command': 'dbt run --profiles-dir .', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m04:26:43.390255 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '3f40702f-7c4d-456a-9279-f8705346b7f1', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91f69410>]}
+[0m04:26:43.409645 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '3f40702f-7c4d-456a-9279-f8705346b7f1', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff943a6750>]}
+[0m04:26:43.411280 [info ] [MainThread]: Registered adapter: duckdb=1.8.4
+[0m04:26:43.443397 [debug] [MainThread]: checksum: 4af21dafb485259c48497ac86b711ddb1982f3d0f1c0ca4e09356de488b753c0, vars: {}, profile: , target: , version: 1.8.7
+[0m04:26:43.525997 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m04:26:43.526256 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m04:26:43.526492 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 3 unused configuration paths:
+- models.agri_dwh.silver
+- models.agri_dwh.bronze
+- models.agri_dwh.gold
+[0m04:26:43.531843 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '3f40702f-7c4d-456a-9279-f8705346b7f1', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff8d9a5790>]}
+[0m04:26:43.568126 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '3f40702f-7c4d-456a-9279-f8705346b7f1', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff8cf6da10>]}
+[0m04:26:43.568386 [info ] [MainThread]: Found 2 sources, 421 macros
+[0m04:26:43.568542 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '3f40702f-7c4d-456a-9279-f8705346b7f1', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91e0b4d0>]}
+[0m04:26:43.569246 [info ] [MainThread]: 
+[0m04:26:43.569419 [warn ] [MainThread]: Nothing to do. Try checking your model configs and model specification args
+[0m04:26:43.570232 [debug] [MainThread]: Command end result
+[0m04:26:43.582081 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 0.34334704, "process_user_time": 0.923782, "process_kernel_time": 0.273527, "process_mem_max_rss": "133656", "process_in_blocks": "44088", "process_out_blocks": "1607"}
+[0m04:26:43.582368 [debug] [MainThread]: Command `dbt run` succeeded at 04:26:43.582316 after 0.34 seconds
+[0m04:26:43.582579 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91fdeb50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff91fdfbd0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff96e9acd0>]}
+[0m04:26:43.582752 [debug] [MainThread]: Flushing usage events
+[0m07:00:10.926388 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff840a6a10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff840a6ad0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff840a67d0>]}
+
+
+============================== 07:00:10.929678 | 3cf95d44-ee88-4153-a9ce-1533166555da ==============================
+[0m07:00:10.929678 [info ] [MainThread]: Running with dbt=1.8.7
+[0m07:00:10.930215 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '.', 'fail_fast': 'False', 'version_check': 'True', 'log_path': '/app/dbt/logs', 'debug': 'False', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'empty': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'introspect': 'True', 'invocation_command': 'dbt run --profiles-dir .', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m07:00:11.167422 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '3cf95d44-ee88-4153-a9ce-1533166555da', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff83e07a10>]}
+[0m07:00:11.188574 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '3cf95d44-ee88-4153-a9ce-1533166555da', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff83fefb90>]}
+[0m07:00:11.190817 [info ] [MainThread]: Registered adapter: duckdb=1.8.4
+[0m07:00:11.242556 [debug] [MainThread]: checksum: 4af21dafb485259c48497ac86b711ddb1982f3d0f1c0ca4e09356de488b753c0, vars: {}, profile: , target: , version: 1.8.7
+[0m07:00:11.352962 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m07:00:11.353609 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m07:00:11.354632 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 3 unused configuration paths:
+- models.agri_dwh.silver
+- models.agri_dwh.bronze
+- models.agri_dwh.gold
+[0m07:00:11.365712 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': '3cf95d44-ee88-4153-a9ce-1533166555da', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff803bc690>]}
+[0m07:00:11.422082 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': '3cf95d44-ee88-4153-a9ce-1533166555da', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff7f90f950>]}
+[0m07:00:11.422472 [info ] [MainThread]: Found 2 sources, 421 macros
+[0m07:00:11.422764 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': '3cf95d44-ee88-4153-a9ce-1533166555da', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff83f586d0>]}
+[0m07:00:11.423942 [info ] [MainThread]: 
+[0m07:00:11.424185 [warn ] [MainThread]: Nothing to do. Try checking your model configs and model specification args
+[0m07:00:11.425146 [debug] [MainThread]: Command end result
+[0m07:00:11.442358 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 0.55371845, "process_user_time": 1.563715, "process_kernel_time": 0.893097, "process_mem_max_rss": "133388", "process_in_blocks": "100584", "process_out_blocks": "1607"}
+[0m07:00:11.442811 [debug] [MainThread]: Command `dbt run` succeeded at 07:00:11.442733 after 0.55 seconds
+[0m07:00:11.443110 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff83ee2490>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff88eba050>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0xffff88ebb190>]}
+[0m07:00:11.443332 [debug] [MainThread]: Flushing usage events
