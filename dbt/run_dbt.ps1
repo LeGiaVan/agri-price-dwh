@@ -28,7 +28,7 @@ if (Test-Path $EnvFile) {
 }
 
 if (Test-Path $VenvDbt) {
-    & $VenvDbt @DbtArgs --profiles-dir $ProjectDir --log-path $LogPath
+    & $VenvDbt @DbtArgs --project-dir $ProjectDir --profiles-dir $ProjectDir --log-path $LogPath
 } else {
-    & dbt @DbtArgs --profiles-dir $ProjectDir --log-path $LogPath
+    & dbt @DbtArgs --project-dir $ProjectDir --profiles-dir $ProjectDir --log-path $LogPath
 }
