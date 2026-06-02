@@ -1,6 +1,20 @@
 .env
-.dbt/
+.venv/
+.idea/
 __pycache__/
 *.pyc
+
+dbt/.duckdb_home/
+dbt/.user.yml
+dbt/logs/
+dbt/target/
+dbt/dbt_packages/
+.dbt/
 ml/models/*.h5
 logs/*.log
+
+# Dashboard dev
+dashboard/.venv312/
+dashboard/local_dev.duckdb
+check_db.py
+*.duckdb

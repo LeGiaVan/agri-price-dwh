@@ -12,6 +12,19 @@
     networks:
       - agri_net
 
+  fao_bronze_seed:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: agri_fao_bronze_seed
+    env_file: ../.env
+    volumes:
+      - ../fao_bronze_seed.py:/app/fao_bronze_seed.py
+      - ../logs:/app/logs
+    command: python fao_bronze_seed.py
+    networks:
+      - agri_net
+
   dbt:
     build:
       context: ..

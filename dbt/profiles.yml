@@ -3,5 +3,5 @@ agri_dwh:
   outputs:
     dev:
       type: duckdb
-      path: "md:agri_dwh?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}"
+      path: "md:{{ env_var('MOTHERDUCK_DB', 'agri_dwh') }}"
       schema: gold

@@ -1,0 +1,155 @@
+version: 2
+
+models:
+  - name: dim_commodity
+    description: "Commodity dimension for the five Vietnamese agricultural products in scope."
+    columns:
+      - name: commodity_id
+        description: "Stable numeric commodity key."
+        data_tests:
+          - unique
+          - not_null
+      - name: commodity
+        description: "Standard commodity code."
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
+      - name: name_vi
+        description: "Vietnamese commodity name without accents for ASCII compatibility."
+      - name: category
+        description: "Commodity category used for grouping in analytics."
+
+  - name: dim_date
+    description: "Calendar dimension from 2000 through 2026."
+    columns:
+      - name: date_id
+        description: "Date key formatted as YYYYMMDD."
+        data_tests:
+          - unique
+          - not_null
+      - name: date
+        description: "Calendar date."
+        data_tests:
+          - unique
+          - not_null
+      - name: year
+        description: "Calendar year."
+      - name: quarter
+        description: "Calendar quarter."
+      - name: month
+        description: "Calendar month number."
+      - name: month_name
+        description: "Calendar month name."
+      - name: week
+        description: "Calendar week number."
+      - name: day_of_week
+        description: "Day of week number returned by DuckDB."
+      - name: is_weekend
+        description: "True when the date is Saturday or Sunday."
+      - name: is_vietnam_public_holiday
+        description: "True for major fixed-date Vietnam public holidays."
+
+  - name: dim_region
+    description: "Market or region dimension derived from cleaned price observations."
+    data_tests:
+      - unique_combination_of_columns:
+          combination_of_columns: ["country", "region", "source"]
+    columns:
+      - name: region_id
+        description: "Numeric region key."
+        data_tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Country name."
+        data_tests:
+          - not_null
+      - name: region
+        description: "Market, province, region, or global marker."
+        data_tests:
+          - not_null
+      - name: source
+        description: "Source system where this region appears."
+        data_tests:
+          - not_null
+      - name: is_vietnam_market
+        description: "True when country is Vietnam or Viet Nam."
+
+  - name: fact_price_daily
+    description: "Daily or period-level commodity price fact table enriched with rolling price metrics."
+    columns:
+      - name: price_id
+        description: "Hash key for source, commodity, date, and region."
+        data_tests:
+          - unique
+          - not_null
+      - name: commodity_id
+        description: "Foreign key to dim_commodity."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_commodity')
+              field: commodity_id
+      - name: date_id
+        description: "Foreign key to dim_date."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+      - name: region_id
+        description: "Foreign key to dim_region."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_region')
+              field: region_id
+      - name: price_usd_per_kg
+        description: "Price normalized to USD per kilogram."
+        data_tests:
+          - not_null
+      - name: price_change_pct
+        description: "Percent change from the previous observation for the same commodity, region, and source."
+      - name: price_7d_avg
+        description: "Rolling average over the current and previous six observations."
+      - name: price_30d_avg
+        description: "Rolling average over the current and previous twenty-nine observations."
+      - name: source
+        description: "Source system identifier."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['FAO', 'WORLD_BANK']
+
+  - name: gold_ml_features
+    description: "Flattened feature table for ARIMA/LSTM forecasting notebooks and BI exploration."
+    data_tests:
+      - unique_combination_of_columns:
+          combination_of_columns: ["price_date", "commodity"]
+    columns:
+      - name: price_date
+        description: "Feature row date."
+        data_tests:
+          - not_null
+      - name: commodity
+        description: "Standard commodity code."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
+      - name: price_usd_per_kg
+        description: "Average normalized price across available sources."
+        data_tests:
+          - not_null
+      - name: price_lag_1
+        description: "Previous observation price for the commodity."
+      - name: price_lag_7
+        description: "Price seven observations before the current row."
+      - name: price_lag_30
+        description: "Price thirty observations before the current row."
+      - name: price_30d_volatility
+        description: "Rolling sample standard deviation over thirty observations."
+      - name: is_harvest_season
+        description: "Approximate Vietnam harvest-season flag by commodity."

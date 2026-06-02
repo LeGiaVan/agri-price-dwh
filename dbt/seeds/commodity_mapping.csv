@@ -1,0 +1,16 @@
+raw_name,commodity,name_vi,category
+rice,rice,Lua gao,grains
+gao,rice,Lua gao,grains
+lua,rice,Lua gao,grains
+paddy,rice,Lua gao,grains
+coffee,coffee,Ca phe,beverages
+ca phe,coffee,Ca phe,beverages
+pepper,pepper,Ho tieu,spices
+black pepper,pepper,Ho tieu,spices
+ho tieu,pepper,Ho tieu,spices
+cashew,cashew,Dieu,nuts
+cashew nut,cashew,Dieu,nuts
+dieu,cashew,Dieu,nuts
+rubber,rubber,Cao su,industrial_crops
+natural rubber,rubber,Cao su,industrial_crops
+cao su,rubber,Cao su,industrial_crops

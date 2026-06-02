@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: silver_fao_prices
+    description: "Cleaned FAO price observations normalized to USD per kilogram."
+    data_tests:
+      - unique_combination_of_columns:
+          combination_of_columns: ["commodity", "price_date", "region", "source"]
+    columns:
+      - name: commodity
+        description: "Standard commodity code: rice, coffee, pepper, cashew, or rubber."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
+      - name: price_date
+        description: "Observation date. Monthly or yearly data is represented by the first day of the period."
+        data_tests:
+          - not_null
+      - name: region
+        description: "Market, province, country region, or unknown when unavailable."
+        data_tests:
+          - not_null
+      - name: country
+        description: "Country attached to the observation."
+      - name: price_usd_per_kg
+        description: "Commodity price converted to USD per kilogram."
+        data_tests:
+          - not_null
+      - name: currency
+        description: "Original or standardized currency code."
+      - name: unit
+        description: "Original price unit from source data."
+      - name: source
+        description: "Source system identifier."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['FAO']
+      - name: ingested_at
+        description: "Timestamp when the raw observation was loaded."
+
+  - name: silver_wb_prices
+    description: "Cleaned World Bank commodity price observations normalized to USD per kilogram."
+    data_tests:
+      - unique_combination_of_columns:
+          combination_of_columns: ["commodity", "price_date", "region", "source"]
+    columns:
+      - name: commodity
+        description: "Standard commodity code: rice, coffee, pepper, cashew, or rubber."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
+      - name: price_date
+        description: "Observation date. Monthly or yearly data is represented by the first day of the period."
+        data_tests:
+          - not_null
+      - name: region
+        description: "Market, country region, or global when unavailable."
+        data_tests:
+          - not_null
+      - name: country
+        description: "Country attached to the observation."
+      - name: price_usd_per_kg
+        description: "Commodity price converted to USD per kilogram."
+        data_tests:
+          - not_null
+      - name: currency
+        description: "Original or standardized currency code."
+      - name: unit
+        description: "Original price unit from source data."
+      - name: source
+        description: "Source system identifier."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['WORLD_BANK']
+      - name: ingested_at
+        description: "Timestamp when the raw observation was loaded."
