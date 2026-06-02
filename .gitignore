@@ -12,3 +12,9 @@ dbt/dbt_packages/
 .dbt/
 ml/models/*.h5
 logs/*.log
+
+# Dashboard dev
+dashboard/.venv312/
+dashboard/local_dev.duckdb
+check_db.py
+*.duckdb
