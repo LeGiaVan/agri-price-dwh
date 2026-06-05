@@ -1,4 +1,17 @@
 ﻿services:
+  db_init:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: agri_db_init
+    env_file: ../.env
+    volumes:
+      - ../db_init.py:/app/db_init.py
+      - ../logs:/app/logs
+    command: python db_init.py
+    networks:
+      - agri_net
+
   ingest:
     build:
       context: ..
@@ -36,6 +49,32 @@
       - ../logs:/app/logs
     working_dir: /app/dbt
     command: dbt run --profiles-dir .
+    networks:
+      - agri_net
+
+  ml_arima:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ml
+    container_name: agri_ml_arima
+    env_file: ../.env
+    volumes:
+      - ../ml:/app/ml
+      - ../logs:/app/logs
+    command: python ml/arima_baseline.py
+    networks:
+      - agri_net
+
+  ml_lstm:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ml
+    container_name: agri_ml_lstm
+    env_file: ../.env
+    volumes:
+      - ../ml:/app/ml
+      - ../logs:/app/logs
+    command: python ml/lstm_forecast.py
     networks:
       - agri_net
 

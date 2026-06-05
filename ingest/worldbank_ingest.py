@@ -177,7 +177,7 @@ def normalize_pink_sheet() -> pd.DataFrame:
     )
     reverse_map = {column: commodity for commodity, column in column_map.items()}
     melted["commodity"] = melted["indicator_name"].map(reverse_map)
-    melted["price_date"] = pd.to_datetime(melted["price_date"], errors="coerce")
+    melted["price_date"] = parse_worldbank_dates(melted["price_date"])
     melted["price_usd"] = pd.to_numeric(melted["price_usd"], errors="coerce")
     melted["year"] = melted["price_date"].dt.year
     melted["month"] = melted["price_date"].dt.month
