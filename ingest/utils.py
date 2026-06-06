@@ -112,13 +112,13 @@ def write_dataframe(
     insert_columns: list[str],
     logger: logging.Logger,
 ) -> None:
-    if df.empty:
-        logger.warning("No rows to insert into %s", table_name)
-        return
-
     con.execute(create_sql)
     for column, data_type in column_types.items():
         con.execute(f"alter table {table_name} add column if not exists {column} {data_type}")
+
+    if df.empty:
+        logger.warning("No rows to insert into %s", table_name)
+        return
 
     con.register("incoming_prices", df[insert_columns])
     con.execute(

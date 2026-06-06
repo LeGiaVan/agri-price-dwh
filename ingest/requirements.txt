@@ -1,0 +1,8 @@
+pandas==2.2.3
+requests==2.32.3
+python-dotenv==1.0.1
+yfinance>=0.2.43
+duckdb==1.5.2
+datasets==3.0.0
+schedule==1.2.2
+openpyxl==3.1.2

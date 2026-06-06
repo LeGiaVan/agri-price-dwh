@@ -1,34 +1,34 @@
 # 🌾 agri-price-dwh
 
-> **Nhà kho dữ liệu — Phân tích & Dự báo Giá Nông sản Việt Nam**  
-> Môn học: Nhà kho dữ liệu & Tích hợp | Nhóm 5 thành viên | 2025
+> **Data Warehouse — Analysis & Forecasting of Vietnam Agricultural Prices**  
+> Course: Data Warehouse & Integration | Team of 5 | 2025
 
 [![Ingest Status](https://github.com/{ORG}/agri-price-dwh/actions/workflows/ingest.yml/badge.svg)](https://github.com/{ORG}/agri-price-dwh/actions)
 
 ---
 
-## 📋 Tổng quan
+## 📋 Overview
 
-Hệ thống thu thập, làm sạch, lưu trữ và dự báo giá **5 mặt hàng nông sản xuất khẩu chủ lực của Việt Nam**: lúa gạo, cà phê, hồ tiêu, điều, cao su.
+A system that collects, cleans, stores, and forecasts prices for **5 key agricultural export commodities of Vietnam**: rice, coffee, pepper, cashew, and rubber.
 
-Kiến trúc: **Medallion (Bronze → Silver → Gold)** trên MotherDuck + dbt + LSTM/ARIMA + Streamlit GenBI.
+Architecture: **Medallion Architecture (Bronze → Silver → Gold)** built on MotherDuck + dbt + LSTM/ARIMA + Streamlit GenBI.
 
-```
+```text
 FAO API / World Bank API
         │
-        ▼ (GitHub Actions, 0h hàng ngày)
+        ▼ (GitHub Actions, Daily at midnight)
   ┌─────────────┐
-  │   BRONZE    │  Dữ liệu thô, nguyên bản
+  │   BRONZE    │  Raw, unmodified data
   └──────┬──────┘
          │ dbt
          ▼
   ┌─────────────┐
-  │   SILVER    │  Đã làm sạch, chuẩn hóa
+  │   SILVER    │  Cleaned and standardized
   └──────┬──────┘
          │ dbt
          ▼
   ┌─────────────┐
-  │    GOLD     │  Star schema Kimball + ML features
+  │    GOLD     │  Kimball Star Schema + ML features
   └──────┬──────┘
          │
     ┌────┴────┐
@@ -39,60 +39,58 @@ FAO API / World Bank API
 
 ---
 
-## 🗂️ Cấu trúc thư mục
+## 🗂️ Lean Directory Structure
 
-```
+```text
 agri-price-dwh/
 ├── .github/workflows/
-│   └── ingest.yml          # GitHub Actions tự động chạy 0h VN
+│   └── ingest.yml          # GitHub Actions auto-trigger at 00:00 VN
 ├── ingest/
-│   ├── fao_ingest.py       # Thu thập FAO / HuggingFace  [Thành viên 1]
-│   ├── worldbank_ingest.py # Thu thập World Bank API     [Thành viên 1]
-│   └── utils.py            # Logger, retry helper
+│   ├── Dockerfile          # Lean Dockerfile for ingestion
+│   ├── requirements.txt    # Ingest dependencies
+│   ├── fao_ingest.py       # FAO / HuggingFace ingestion
+│   ├── worldbank_ingest.py # World Bank API ingestion
+│   └── utils.py            # Logger, retry helpers
 ├── dbt/
+│   ├── Dockerfile          # Lean Dockerfile for dbt
 │   ├── dbt_project.yml
-│   ├── profiles.yml        # Kết nối MotherDuck (KHÔNG commit)
-│   └── models/
-│       ├── bronze/         # sources.yml
-│       ├── silver/         # Làm sạch dữ liệu            [Thành viên 2]
-│       └── gold/           # Star schema + ML features   [Thành viên 2]
+│   ├── profiles.yml        # MotherDuck connections (ignored)
+│   └── models/             # Bronze, Silver, Gold transformations
 ├── ml/
-│   ├── 01_arima_baseline.ipynb                           [Thành viên 3]
-│   ├── 02_lstm_forecast.ipynb                            [Thành viên 3]
-│   └── models/             # .h5 weights sau khi train
+│   ├── notebooks/          # LSTM / ARIMA training notebooks
+│   └── models/             # Compiled weights (.h5)
 ├── dashboard/
-│   ├── app.py              # Streamlit main app           [Thành viên 4]
-│   ├── genbi_chat.py       # Groq chatbot integration     [Thành viên 4]
-│   └── requirements.txt
-├── docker/
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── logs/                   # Ingest logs (gitignored)
-├── .env.example            # Template biến môi trường
-├── .gitignore
-├── requirements.txt        # Python dependencies
-├── CONTRIBUTING.md         # Quy trình làm việc nhóm
+│   ├── Dockerfile          # Lean Dockerfile for Streamlit
+│   ├── requirements.txt    # Dashboard dependencies
+│   ├── app.py              # Main Streamlit app
+│   └── genbi_chat.py       # Groq AI integration
+├── scripts/
+│   ├── db_init.py          # MotherDuck DB initialization
+│   └── fao_bronze_seed.py  # Historical data seeding script
+├── docker-compose.yml      # Root docker-compose for all services
+├── Makefile                # Standardized developer commands
+├── .env.example            # Environment variables template
 └── README.md
 ```
 
 ---
 
-## ⚡ Quickstart (5 phút)
+## ⚡ Quickstart (5 Minutes)
 
-### 1. Clone repo
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/{ORG}/agri-price-dwh.git
 cd agri-price-dwh
 ```
 
-### 2. Tạo file `.env`
+### 2. Set up Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
-Mở `.env` và điền token thật vào:
+Open `.env` and fill in your actual tokens:
 
 ```env
 MOTHERDUCK_TOKEN=md_token_xxxxxxxxxxxxx
@@ -100,57 +98,61 @@ HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-> 📌 Xin token ở đâu?
+> 📌 **Where to get tokens?**
 > - **MotherDuck**: [app.motherduck.com](https://app.motherduck.com) → Settings → Access Tokens
 > - **HuggingFace**: [hf.co/settings/tokens](https://huggingface.co/settings/tokens) → New token (Read)
 > - **Groq**: [console.groq.com](https://console.groq.com) → API Keys → Create
 
-### 3. Tạo virtual environment (khuyến nghị)
+### 3. Initialize MotherDuck Database
+
+Initialize the database schemas (`bronze`, `silver`, `gold`):
 
 ```bash
-python -m venv .venv
+# Using Python locally:
+pip install duckdb python-dotenv
 
-# Windows
-.venv\Scripts\activate
+# On Windows:
+.\run.bat init-db
 
-# macOS/Linux
-source .venv/bin/activate
-
-pip install -r requirements.txt
+# On Linux/Mac:
+make init-db
 ```
 
-### 4. Khởi tạo database MotherDuck
-
-```bash
-python db_init.py
-```
-
-Kết quả mong đợi:
-```
+*Expected output:*
+```text
 ✅ Connected to MotherDuck
 ✅ Schema bronze created
 ✅ Schema silver created
 ✅ Schema gold created
 ```
 
-### 5. Chạy bằng Docker (tuỳ chọn)
+### 4. Run Services with Docker & Task Runner
+
+We use a `Makefile` (for Linux/Mac) and `run.bat` (for Windows) to simplify Docker commands. **Ensure Docker is running on your machine.**
 
 ```bash
-# Chạy ingest thủ công
-docker-compose -f docker/docker-compose.yml run --rm ingest
+# 1. Run Data Ingestion (or Seed Data if HuggingFace dataset is unavailable)
+.\run.bat ingest          # Windows (requires HF dataset)
+.\run.bat seed-bronze     # Windows (Fallback: generates historical mock data)
 
-# Chạy dbt transformations
-docker-compose -f docker/docker-compose.yml run --rm dbt dbt run
+# 2. Run dbt Transformations (Bronze -> Silver -> Gold)
+.\run.bat run-dbt         # Windows
+make run-dbt              # Linux/Mac
 
-# Chạy dashboard (truy cập http://localhost:8501)
-docker-compose -f docker/docker-compose.yml up dashboard
+# 3. Start the Streamlit Dashboard (accessible at http://localhost:8501)
+.\run.bat run-dashboard   # Windows
+make run-dashboard        # Linux/Mac
+
+# 4. OR: Start EVERYTHING in the background at once
+.\run.bat start-all       # Windows
+make start-all            # Linux/Mac
 ```
 
 ---
 
-## 🗄️ Mô hình dữ liệu (Star Schema)
+## 🗄️ Data Model (Star Schema)
 
-```
+```text
                     ┌─────────────────┐
                     │  dim_commodity  │
                     │─────────────────│
@@ -179,62 +181,62 @@ docker-compose -f docker/docker-compose.yml up dashboard
 
 ## 🤖 AI/ML Pipeline
 
-| Model | Thư viện | Mục tiêu | Metrics |
+| Model | Library | Objective | Metrics |
 |---|---|---|---|
-| ARIMA | pmdarima | Baseline dự báo 30 ngày | RMSE, MAPE |
-| LSTM | TensorFlow/Keras | Dự báo nâng cao | RMSE, MAPE |
-| SHAP | shap | Giải thích feature importance | — |
+| **ARIMA** | `pmdarima` | Baseline 30-day forecasting | RMSE, MAPE |
+| **LSTM** | `TensorFlow/Keras` | Advanced forecasting | RMSE, MAPE |
+| **SHAP** | `shap` | Feature importance explanation | — |
 
-**Ngưỡng chấp nhận**: MAPE < 10% trên tập test.
+**Acceptance Threshold**: MAPE < 10% on the test set.
 
 ---
 
 ## 📊 Dashboard
 
-Truy cập sau khi deploy: `https://{app-name}.streamlit.app`
+The application features the following sections:
 
-| Trang | Nội dung |
+| Page | Content |
 |---|---|
-| Tổng quan | Metric cards, line chart giá theo thời gian |
-| Phân tích | Heatmap mùa vụ, so sánh mặt hàng, tương quan |
-| Dự báo | LSTM/ARIMA forecast + confidence interval |
-| Trợ lý AI | Chat tiếng Việt với Groq Llama 3 (GenBI) |
+| **Overview** | Metric cards, historical price line charts |
+| **Analysis** | Seasonality heatmaps, commodity comparisons, correlations |
+| **Forecasting** | LSTM/ARIMA predictions with confidence intervals |
+| **AI Assistant** | Vietnamese-supported GenBI chat powered by Groq Llama 3 |
 
 ---
 
-## 👥 Phân công nhóm
+## 👥 Team Roles
 
-| Thành viên | Vai trò | Nhánh làm việc |
+| Member | Role | Working Branch |
 |---|---|---|
-| Nhóm trưởng | Infrastructure, Architecture | `main` |
-| Thành viên 1 | Data Ingestion | `feature/ingest-pipeline` |
-| Thành viên 2 | dbt Transformation | `feature/dbt-silver-gold` |
-| Thành viên 3 | ML Engineering | `feature/ml-forecasting` |
-| Thành viên 4 | Dashboard & GenBI | `feature/dashboard-genbi` |
+| Team Leader | Infrastructure, Architecture | `main` |
+| Member 1 | Data Ingestion | `feature/ingest-pipeline` |
+| Member 2 | dbt Transformation | `feature/dbt-silver-gold` |
+| Member 3 | ML Engineering | `feature/ml-forecasting` |
+| Member 4 | Dashboard & GenBI | `feature/dashboard-genbi` |
 
 ---
 
-## 🔧 Lệnh dbt thường dùng
+## 🔧 Useful dbt Commands
+
+If you choose to run dbt locally instead of via Docker:
 
 ```bash
 cd dbt
 
-# Kiểm tra kết nối
+# Test connection
 dbt debug
 
-# Chạy toàn bộ
+# Run all models
 dbt run
 
-# Chỉ chạy Silver
+# Run specific layers
 dbt run --select silver
-
-# Chỉ chạy Gold
 dbt run --select gold
 
-# Chạy tests
+# Run tests
 dbt test
 
-# Xem docs
+# Generate and serve documentation locally
 dbt docs generate && dbt docs serve
 ```
 
@@ -242,13 +244,13 @@ dbt docs generate && dbt docs serve
 
 ## 🚀 GitHub Actions
 
-Workflow `ingest.yml` tự động chạy lúc **0h00 VN** mỗi ngày.
+The `ingest.yml` workflow is scheduled to run automatically at **00:00 VN Time** every day.
 
-Để trigger thủ công: GitHub repo → tab **Actions** → **Daily Ingest** → **Run workflow**.
+To trigger it manually: Go to the GitHub repository → **Actions** tab → **Daily Ingest** → **Run workflow**.
 
 ---
 
-## ❓ Hỏi đáp
+## ❓ FAQ & Support
 
-Gặp vấn đề? Tạo **Issue** trên GitHub hoặc hỏi trong nhóm chat.  
-Xem thêm: [CONTRIBUTING.md](./CONTRIBUTING.md) để biết quy trình làm việc.
+Encountering issues? Open an **Issue** on GitHub.  
+For more details on the team's workflow, refer to [CONTRIBUTING.md](./CONTRIBUTING.md).

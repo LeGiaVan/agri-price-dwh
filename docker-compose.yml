@@ -1,0 +1,60 @@
+services:
+  ingest:
+    build:
+      context: .
+      dockerfile: ingest/Dockerfile
+    container_name: agri_ingest
+    env_file: .env
+    volumes:
+      - ./logs:/app/logs
+      - ./ingest:/app/ingest
+      - ./scripts:/app/scripts
+    networks:
+      - agri_net
+
+  fao_bronze_seed:
+    build:
+      context: .
+      dockerfile: ingest/Dockerfile
+    container_name: agri_fao_bronze_seed
+    env_file: .env
+    volumes:
+      - ./scripts/fao_bronze_seed.py:/app/fao_bronze_seed.py
+      - ./logs:/app/logs
+    command: python /app/fao_bronze_seed.py
+    networks:
+      - agri_net
+
+  dbt:
+    build:
+      context: .
+      dockerfile: dbt/Dockerfile
+    container_name: agri_dbt
+    env_file: .env
+    volumes:
+      - ./dbt:/app/dbt
+      - ./logs:/app/logs
+    working_dir: /app/dbt
+    command: dbt build --profiles-dir .
+    networks:
+      - agri_net
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    container_name: agri_dashboard
+    env_file: .env
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard
+    working_dir: /app
+    networks:
+      - agri_net
+    depends_on:
+      - ingest
+
+networks:
+  agri_net:
+    driver: bridge
