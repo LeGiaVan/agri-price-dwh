@@ -35,13 +35,14 @@ MOTHERDUCK_DB=agri_dwh
 
 ## Tinh trang nguon du lieu
 
-Dataset HuggingFace `mrm8488/fao-agricultural-market` hien co luc bi loi:
+Dataset HuggingFace gốc (`mrm8488/fao-agricultural-market`) đã bị xóa hoặc không thể truy cập. Vì vậy, nhóm đã cập nhật sang sử dụng dataset thực tế thay thế: **`electricsheepasia/asia-faostat-producer-prices-pp`**. 
 
-```text
-DatasetNotFoundError: Dataset 'mrm8488/fao-agricultural-market' doesn't exist on the Hub or cannot be accessed.
-```
+Do dữ liệu giá tháng của Việt Nam trong dataset này được lưu bằng đơn vị tiền tệ nội địa (LCU - VND), pipeline `fao_ingest.py` đã được bổ sung logic tự động:
+1. Tính toán tỷ giá hối đoái VND/USD trung bình theo từng năm từ các dòng dữ liệu Annual của cùng mặt hàng.
+2. Quy đổi giá tháng từ LCU/tấn sang USD/tấn, sau đó quy đổi tiếp sang USD/kg.
+3. Gán phân vùng địa lý (region) dựa theo vùng sản xuất trọng điểm của 5 mặt hàng ở Việt Nam (Mekong Delta, Central Highlands, South East).
 
-Vi vay da them `fao_bronze_seed.py` lam fallback de tao bang `bronze.fao_prices_raw` va test duoc dbt Silver/Gold. Neu sau nay tim duoc dataset FAO thay the, chi can sua `ingest/fao_ingest.py` hoac bien `DATASET_NAME`.
+Nhờ vậy, hệ thống hiện tại **đang chạy hoàn toàn bằng dữ liệu thực tế (Real Data)** và không cần dùng đến mock data của `fao_bronze_seed.py` nữa.
 
 World Bank Indicators API co the khong tra row cho mot so ma commodity indicator, nen `ingest/worldbank_ingest.py` fallback sang Pink Sheet monthly workbook cua World Bank.
 

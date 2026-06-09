@@ -23,16 +23,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run FAO ingest
+      - name: Run Master Ingestion (FAO & World Bank)
         env:
           MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python ingest/fao_ingest.py
-
-      - name: Run World Bank ingest
-        env:
-          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
-        run: python ingest/worldbank_ingest.py
+        run: python ingest/main.py
 
       - name: Upload ingest logs on failure
         if: failure()

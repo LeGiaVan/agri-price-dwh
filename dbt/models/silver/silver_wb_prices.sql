@@ -38,6 +38,8 @@ standardized as (
         coalesce(nullif(trim(typed.raw_country), ''), 'World') as country,
         case
             when lower(coalesce(typed.raw_unit, '')) like '%ton%' then typed.raw_price / 1000
+            when lower(coalesce(typed.raw_unit, '')) like '%/mt%' then typed.raw_price / 1000
+            when lower(coalesce(typed.raw_unit, '')) like '%/t%' then typed.raw_price / 1000
             when lower(coalesce(typed.raw_unit, '')) in ('t', 'mt') then typed.raw_price / 1000
             when lower(coalesce(typed.raw_unit, '')) like '%lb%' then typed.raw_price / 0.45359237
             else typed.raw_price

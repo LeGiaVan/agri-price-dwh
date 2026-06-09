@@ -9,6 +9,7 @@ services:
       - ./logs:/app/logs
       - ./ingest:/app/ingest
       - ./scripts:/app/scripts
+    command: python ingest/main.py
     networks:
       - agri_net
 

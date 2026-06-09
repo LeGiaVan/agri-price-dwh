@@ -10,4 +10,4 @@ RUN mkdir -p /app/logs
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
-CMD ["python", "ingest/fao_ingest.py"]
+CMD ["python", "ingest/main.py"]

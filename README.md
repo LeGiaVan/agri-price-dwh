@@ -131,8 +131,8 @@ make init-db
 We use a `Makefile` (for Linux/Mac) and `run.bat` (for Windows) to simplify Docker commands. **Ensure Docker is running on your machine.**
 
 ```bash
-# 1. Run Data Ingestion (or Seed Data if HuggingFace dataset is unavailable)
-.\run.bat ingest          # Windows (requires HF dataset)
+# 1. Run Master Data Ingestion (FAO & World Bank combined)
+.\run.bat ingest          # Windows (ingests both FAO and World Bank data)
 .\run.bat seed-bronze     # Windows (Fallback: generates historical mock data)
 
 # 2. Run dbt Transformations (Bronze -> Silver -> Gold)

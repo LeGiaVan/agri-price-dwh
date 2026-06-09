@@ -24,7 +24,7 @@ except ModuleNotFoundError:
     )
 
 
-DATASET_NAME = "mrm8488/fao-agricultural-market"
+DATASET_NAME = "electricsheepasia/asia-faostat-producer-prices-pp"
 TARGET_KEYWORDS = {
     "rice": ("rice", "paddy", "gao", "lua"),
     "coffee": ("coffee", "arabica", "robusta", "ca phe"),
@@ -57,66 +57,81 @@ def map_commodity(value: object) -> str | None:
 
 
 def normalize_fao(df: pd.DataFrame) -> pd.DataFrame:
-    commodity_col = first_existing_column(
-        df.columns,
-        ("commodity", "item", "item_name", "product", "product_name", "name"),
-    )
-    price_col = first_existing_column(
-        df.columns,
-        ("price_usd_per_kg", "price_usd", "price", "value", "market_price"),
-    )
-    date_col = first_existing_column(
-        df.columns,
-        ("price_date", "date", "period", "year_month", "month_date"),
-    )
-    year_col = first_existing_column(df.columns, ("year", "yr"))
-    month_col = first_existing_column(df.columns, ("month", "month_number", "mo"))
-    region_col = first_existing_column(
-        df.columns,
-        ("region", "market", "market_name", "area", "province"),
-    )
-    country_col = first_existing_column(df.columns, ("country", "country_name", "area_name"))
-    currency_col = first_existing_column(df.columns, ("currency", "currency_code"))
-    unit_col = first_existing_column(df.columns, ("unit", "price_unit", "measurement_unit"))
+    # 1. Filter to Viet Nam only
+    df_vn = df[df["Area"] == "Viet Nam"].copy()
 
-    if commodity_col is None or price_col is None:
-        raise ValueError(
-            "FAO dataset must contain a commodity column and a price/value column"
-        )
+    if df_vn.empty:
+        LOG.warning("No Viet Nam data found in dataset")
+        return pd.DataFrame()
 
-    working = df.copy()
-    working["commodity"] = working[commodity_col].map(map_commodity)
+    # 2. Compute yearly exchange rate from annual values
+    annual_usd = df_vn[
+        (df_vn["Element"] == "Producer Price (USD/tonne)") & 
+        (df_vn["Months"] == "Annual value")
+    ][["Year", "Item", "Value"]].rename(columns={"Value": "price_usd"})
+
+    annual_lcu = df_vn[
+        (df_vn["Element"] == "Producer Price (LCU/tonne)") & 
+        (df_vn["Months"] == "Annual value")
+    ][["Year", "Item", "Value"]].rename(columns={"Value": "price_lcu"})
+
+    # Join to find the exchange rate for each year and commodity
+    rates = pd.merge(annual_usd, annual_lcu, on=["Year", "Item"])
+    rates["rate"] = rates["price_lcu"] / rates["price_usd"]
+
+    # Group by Year to get the average exchange rate for Viet Nam in that year
+    yearly_rates = rates.groupby("Year")["rate"].mean().reset_index()
+
+    # 3. Extract monthly LCU prices
+    monthly_lcu = df_vn[
+        (df_vn["Element"] == "Producer Price (LCU/tonne)") & 
+        (df_vn["Months"] != "Annual value")
+    ].copy()
+
+    # Join with yearly exchange rates
+    working = pd.merge(monthly_lcu, yearly_rates, on="Year", how="left")
+
+    # Convert LCU/tonne to USD/tonne: price_usd = price_lcu / rate
+    # If rate is missing for some reason, use a fallback (e.g. 23000 VND/USD)
+    working["rate"] = working["rate"].fillna(23000.0)
+    working["price_usd_per_kg"] = (working["Value"] / working["rate"]) / 1000.0
+
+    # Map months to numbers
+    month_map = {
+        "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+        "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12
+    }
+    working["month"] = working["Months"].map(month_map)
+    working["year"] = working["Year"]
+
+    # Map commodities
+    working["commodity"] = working["Item"].map(map_commodity)
     working = working[working["commodity"].notna()].copy()
 
-    if date_col:
-        working["price_date"] = pd.to_datetime(working[date_col], errors="coerce")
-    elif year_col:
-        year = pd.to_numeric(working[year_col], errors="coerce")
-        month = pd.to_numeric(working[month_col], errors="coerce") if month_col else 1
-        if not isinstance(month, pd.Series):
-            month = pd.Series([month] * len(working), index=working.index)
-        working["price_date"] = pd.to_datetime(
-            {"year": year, "month": month.fillna(1), "day": 1},
-            errors="coerce",
-        )
-    else:
-        raise ValueError("FAO dataset must contain a date column or year/month columns")
-
-    working["price_usd_per_kg"] = pd.to_numeric(working[price_col], errors="coerce")
-    working["region"] = working[region_col].fillna("unknown") if region_col else "unknown"
-    working["country"] = working[country_col].fillna("Vietnam") if country_col else "Vietnam"
-    working["currency"] = (
-        working[currency_col].fillna("USD").astype(str).str.upper()
-        if currency_col
-        else "USD"
+    # Create price_date
+    working["price_date"] = pd.to_datetime(
+        {"year": working["year"], "month": working["month"].fillna(1), "day": 1},
+        errors="coerce",
     )
-    working["unit"] = working[unit_col].fillna("kg") if unit_col else "kg"
+
+    # Set region mapping based on typical production regions in Viet Nam
+    region_map = {
+        "rice": "Mekong Delta",
+        "coffee": "Central Highlands",
+        "pepper": "South East",
+        "cashew": "South East",
+        "rubber": "South East"
+    }
+    working["region"] = working["commodity"].map(region_map).fillna("unknown")
+
+    # Final metadata columns
+    working["country"] = "Vietnam"
+    working["currency"] = "USD"
+    working["unit"] = "kg"
     working["source"] = "FAO_HUGGINGFACE"
     working["dataset_name"] = DATASET_NAME
-    working["original_commodity"] = working[commodity_col].astype(str)
+    working["original_commodity"] = working["Item"].astype(str)
     working["ingested_at"] = datetime.now(UTC).replace(tzinfo=None)
-    working["year"] = working["price_date"].dt.year
-    working["month"] = working["price_date"].dt.month
 
     normalized = working[
         [
