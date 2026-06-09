@@ -22,7 +22,7 @@ from ml.common import (
 )
 
 
-WINDOW = 30
+WINDOW = 6
 FEATURE_COLS = [
     "price_clean",
     "price_change_pct",
@@ -142,7 +142,7 @@ def main() -> None:
         test_pred = model.predict(X_test_seq).ravel()
         lower = test_pred - 1.96 * residual_std
         upper = test_pred + 1.96 * residual_std
-        importance = shap_importance(model, X_train_seq, X_test_seq, available_cols)
+        # importance = shap_importance(model, X_train_seq, X_test_seq, available_cols)
 
         metrics.append(
             metric_row(
@@ -150,7 +150,7 @@ def main() -> None:
                 commodity,
                 y_test_seq,
                 test_pred,
-                extra=json.dumps({"top_features": list(importance)[:5]}),
+                extra=json.dumps({"top_features": []}),
             )
         )
 
