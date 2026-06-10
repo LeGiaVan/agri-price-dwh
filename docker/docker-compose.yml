@@ -78,6 +78,19 @@
     networks:
       - agri_net
 
+  ml_predict:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ml
+    container_name: agri_ml_predict
+    env_file: ../.env
+    volumes:
+      - ../ml:/app/ml
+      - ../logs:/app/logs
+    command: python ml/predict.py
+    networks:
+      - agri_net
+
   dashboard:
     build:
       context: ..

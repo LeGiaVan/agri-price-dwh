@@ -162,6 +162,17 @@ def ensure_gold_tables(con: duckdb.DuckDBPyConnection) -> None:
         )
         """
     )
+    con.execute(
+        """
+        create table if not exists gold.fact_forecasts (
+            forecast_date date,
+            commodity varchar,
+            predicted_price double,
+            model_name varchar,
+            created_at timestamp
+        )
+        """
+    )
 
 
 def replace_forecast(

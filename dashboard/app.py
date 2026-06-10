@@ -337,17 +337,37 @@ def load_prices() -> pd.DataFrame:
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_forecast():
     try:
-        con = duckdb.connect(f"md:agri_dwh?motherduck_token={_token()}")
-        df  = con.execute("SELECT * FROM gold.forecast_lstm ORDER BY forecast_date,commodity").df()
+        con = duckdb.connect(
+            f"md:agri_dwh?motherduck_token={_token()}"
+        )
+
+        df = con.execute("""
+            SELECT
+                date,
+                commodity,
+                predicted_price,
+                confidence_interval_lower,
+                confidence_interval_upper,
+                model_name
+            FROM gold.forecast_lstm
+            ORDER BY date, commodity
+        """).df()
+
         con.close()
-        df["forecast_date"] = pd.to_datetime(df["forecast_date"])
+
+        df["date"] = pd.to_datetime(df["date"])
+
         return df
-    except: return None
+
+    except Exception as e:
+        print(e)
+        return None
 
 # ─── Load data ────────────────────────────────────────────────────────────────
 with st.spinner(""):
     try:
-        df_all  = load_prices()
+        df_all = load_prices()
+        forecast_df = load_forecast()
     except Exception as e:
         st.error(f"❌ Không kết nối được MotherDuck: {e}")
         st.stop()
@@ -490,6 +510,13 @@ if page == "Tổng quan":
         name  = f"{COMMODITY_EMOJI.get(comm,'')} {COMMODITY_VI.get(comm,comm)}"
         color = COLORS.get(comm, "#888")
 
+        forecast_c = None
+
+        if forecast_df is not None:
+            forecast_c = forecast_df[
+                forecast_df["commodity"] == comm
+                ].sort_values("date")
+
         # Area fill
         fig.add_trace(go.Scatter(
             x=df_c["price_date"], y=df_c["price"],
@@ -509,6 +536,21 @@ if page == "Tổng quan":
             line=dict(color=color, width=1.2, dash="dot"),
             opacity=0.5, showlegend=False, hoverinfo="skip",
         ))
+
+        if forecast_c is not None and not forecast_c.empty:
+            fig.add_trace(
+                go.Scatter(
+                    x=forecast_c["date"],
+                    y=forecast_c["predicted_price"],
+                    name=f"{name} Forecast",
+                    mode="lines",
+                    line=dict(
+                        color=color,
+                        width=3,
+                        dash="dash"
+                    )
+                )
+            )
 
     fig = styled_axes(fig, height=440)
     fig.update_layout(
@@ -731,18 +773,18 @@ elif page == "Dự báo":
         fc_c = st.selectbox("Mặt hàng", selected,
             format_func=lambda x:f"{COMMODITY_EMOJI.get(x,'')} {COMMODITY_VI.get(x,x)}")
         df_h = df[df["commodity"]==fc_c].sort_values("price_date").tail(24)
-        df_f = df_fc[df_fc["commodity"]==fc_c].sort_values("forecast_date")
+        df_f = df_fc[df_fc["commodity"]==fc_c].sort_values("date")
         color = COLORS.get(fc_c,"#06b6d4")
         r2,g2,b2 = tuple(int(color.lstrip('#')[i:i+2],16) for i in (0,2,4))
 
         fig_f = go.Figure()
         fig_f.add_trace(go.Scatter(x=df_h["price_date"],y=df_h["price"],
             name="Lịch sử", line=dict(color=color,width=2.5)))
-        fig_f.add_trace(go.Scatter(x=df_f["forecast_date"],y=df_f["predicted_price"]*mult,
+        fig_f.add_trace(go.Scatter(x=df_f["date"],y=df_f["predicted_price"]*mult,
             name="Dự báo LSTM", line=dict(color="#f59e0b",width=2.5,dash="dash")))
         if "ci_upper" in df_f.columns:
             fig_f.add_trace(go.Scatter(
-                x=list(df_f["forecast_date"])+list(df_f["forecast_date"][::-1]),
+                x=list(df_f["date"])+list(df_f["date"][::-1]),
                 y=list(df_f["ci_upper"]*mult)+list(df_f["ci_lower"][::-1]*mult),
                 fill="toself", fillcolor=f"rgba({r2},{g2},{b2},0.12)",
                 line=dict(color="rgba(0,0,0,0)"), name="CI 95%"))
