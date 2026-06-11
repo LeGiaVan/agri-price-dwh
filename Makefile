@@ -3,9 +3,6 @@
 init-db:
 	python scripts/db_init.py
 
-seed-bronze:
-	docker compose run --rm fao_bronze_seed
-
 run-dashboard:
 	docker compose up dashboard
 

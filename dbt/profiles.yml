@@ -3,5 +3,5 @@ agri_dwh:
   outputs:
     dev:
       type: duckdb
-      path: "md:{{ env_var('MOTHERDUCK_DB', 'agri_dwh') }}"
+      path: "{% if env_var('MOTHERDUCK_TOKEN', '') %}md:{{ env_var('MOTHERDUCK_DB', 'agri_dwh') }}?motherduck_token={{ env_var('MOTHERDUCK_TOKEN') }}{% else %}md:{{ env_var('MOTHERDUCK_DB', 'agri_dwh') }}{% endif %}"
       schema: gold

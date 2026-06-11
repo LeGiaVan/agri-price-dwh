@@ -63,7 +63,7 @@ def get_market_summary(df: pd.DataFrame, cur: str, mult: float) -> str:
     lines += [
         "",
         f"Dữ liệu lịch sử: {df['price_date'].min().strftime('%m/%Y')} → {df['price_date'].max().strftime('%m/%Y')}",
-        "Nguồn: FAO & World Bank",
+        "Nguồn: World Bank & Yahoo Finance",
         "5 mặt hàng xuất khẩu chủ lực của Việt Nam: gạo, cà phê, tiêu, hạt điều, cao su",
     ]
     return "\n".join(lines)

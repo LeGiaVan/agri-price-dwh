@@ -72,6 +72,8 @@ select
         when commodity = 'pepper' and month between 2 and 5 then true
         when commodity = 'cashew' and month between 2 and 4 then true
         when commodity = 'rubber' and month between 5 and 10 then true
+        when commodity = 'cocoa' and month in (10, 11, 12, 1, 2, 3) then true
+        when commodity = 'cotton' and month between 8 and 12 then true
         else false
     end as is_harvest_season,
     price_usd_per_kg,

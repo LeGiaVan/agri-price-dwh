@@ -1,11 +1,8 @@
-name: Daily Ingest
+name: Monthly Ingest
 
 on:
-  push:
-    branches:
-      - dev
   schedule:
-    - cron: '0 17 * * *'
+    - cron: '0 17 1 * *'
   workflow_dispatch:
 
 jobs:
@@ -26,11 +23,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ingest/requirements.txt
 
-      - name: Run Master Ingestion (FAO & World Bank)
+      - name: Run Monthly Incremental Ingestion
         env:
           MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python ingest/main.py
+        run: python ingest/daily_cron.py
+
+      - name: Run dbt seed and build
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: |
+          dbt seed --project-dir dbt --profiles-dir dbt
+          dbt build --project-dir dbt --profiles-dir dbt
 
       - name: Upload ingest logs on failure
         if: failure()

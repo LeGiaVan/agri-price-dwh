@@ -17,9 +17,6 @@ clean-targets:
 
 models:
   agri_dwh:
-    bronze:
-      +materialized: view
-      +schema: bronze
     silver:
       +materialized: table
       +schema: silver
@@ -31,6 +28,7 @@ seeds:
   agri_dwh:
     +schema: silver
     commodity_mapping:
+      +fast: false
       +column_types:
         raw_name: varchar
         commodity: varchar

@@ -1,9 +1,31 @@
 {{ config(materialized='table') }}
 
 with prices as (
-    select * from {{ ref('silver_fao_prices') }}
+    select
+        commodity,
+        price_date,
+        region,
+        country,
+        price_usd_per_kg,
+        currency,
+        unit,
+        source,
+        ingested_at,
+        false as is_imputed
+    from {{ ref('silver_wb_prices') }}
     union all
-    select * from {{ ref('silver_wb_prices') }}
+    select
+        commodity,
+        price_date,
+        region,
+        country,
+        price_usd_per_kg,
+        currency,
+        unit,
+        source,
+        ingested_at,
+        is_imputed
+    from {{ ref('silver_yf_prices') }}
 ),
 
 joined as (
@@ -25,7 +47,8 @@ joined as (
         prices.currency,
         prices.unit,
         prices.source,
-        prices.ingested_at
+        prices.ingested_at,
+        prices.is_imputed
     from prices
     inner join {{ ref('dim_commodity') }} as commodity
         on prices.commodity = commodity.commodity
@@ -77,5 +100,6 @@ select
     currency,
     unit,
     source,
-    ingested_at
+    ingested_at,
+    is_imputed
 from metrics

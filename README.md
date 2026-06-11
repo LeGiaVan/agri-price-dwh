@@ -14,7 +14,7 @@ A system that collects, cleans, stores, and forecasts prices for **5 key agricul
 Architecture: **Medallion Architecture (Bronze → Silver → Gold)** built on MotherDuck + dbt + LSTM/ARIMA + Streamlit GenBI.
 
 ```text
-FAO API / World Bank API
+World Bank API / Yahoo Finance
         │
         ▼ (GitHub Actions, Daily at midnight)
   ┌─────────────┐
@@ -48,8 +48,9 @@ agri-price-dwh/
 ├── ingest/
 │   ├── Dockerfile          # Lean Dockerfile for ingestion
 │   ├── requirements.txt    # Ingest dependencies
-│   ├── fao_ingest.py       # FAO / HuggingFace ingestion
 │   ├── worldbank_ingest.py # World Bank API ingestion
+│   ├── yf_ingest.py        # Yahoo Finance ingestion
+│   ├── main.py             # Runs all real ingestion sources
 │   └── utils.py            # Logger, retry helpers
 ├── dbt/
 │   ├── Dockerfile          # Lean Dockerfile for dbt
@@ -65,8 +66,7 @@ agri-price-dwh/
 │   ├── app.py              # Main Streamlit app
 │   └── genbi_chat.py       # Groq AI integration
 ├── scripts/
-│   ├── db_init.py          # MotherDuck DB initialization
-│   └── fao_bronze_seed.py  # Historical data seeding script
+│   └── db_init.py          # MotherDuck DB initialization
 ├── docker-compose.yml      # Root docker-compose for all services
 ├── Makefile                # Standardized developer commands
 ├── .env.example            # Environment variables template
@@ -94,13 +94,11 @@ Open `.env` and fill in your actual tokens:
 
 ```env
 MOTHERDUCK_TOKEN=md_token_xxxxxxxxxxxxx
-HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 > 📌 **Where to get tokens?**
 > - **MotherDuck**: [app.motherduck.com](https://app.motherduck.com) → Settings → Access Tokens
-> - **HuggingFace**: [hf.co/settings/tokens](https://huggingface.co/settings/tokens) → New token (Read)
 > - **Groq**: [console.groq.com](https://console.groq.com) → API Keys → Create
 
 ### 3. Initialize MotherDuck Database
@@ -131,9 +129,9 @@ make init-db
 We use a `Makefile` (for Linux/Mac) and `run.bat` (for Windows) to simplify Docker commands. **Ensure Docker is running on your machine.**
 
 ```bash
-# 1. Run Master Data Ingestion (FAO & World Bank combined)
-.\run.bat ingest          # Windows (ingests both FAO and World Bank data)
-.\run.bat seed-bronze     # Windows (Fallback: generates historical mock data)
+# 1. Run Master Data Ingestion (World Bank and Yahoo Finance)
+.\run.bat ingest          # Windows
+make ingest               # Linux/Mac
 
 # 2. Run dbt Transformations (Bronze -> Silver -> Gold)
 .\run.bat run-dbt         # Windows
@@ -254,3 +252,50 @@ To trigger it manually: Go to the GitHub repository → **Actions** tab → **Da
 
 Encountering issues? Open an **Issue** on GitHub.  
 For more details on the team's workflow, refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+---
+
+## Monthly GitHub Actions Runbook
+
+The `.github/workflows/ingest.yml` workflow runs on the first day of each month at `17:00 UTC`, which is `00:00` the next day in Vietnam time (`Asia/Bangkok`). It can also be started manually from the GitHub **Actions** tab.
+
+Required GitHub repository secrets:
+
+```text
+MOTHERDUCK_TOKEN
+```
+
+What the workflow does:
+
+1. Installs Python, ingest dependencies, and `dbt-duckdb`.
+2. Runs `python ingest/daily_cron.py`.
+3. Upserts Yahoo Finance commodity futures into `bronze.yf_prices_raw`.
+4. Runs the monthly World Bank ingest with duplicate protection.
+5. Runs `dbt seed` and `dbt build` from the `dbt/` project.
+
+Supported Yahoo futures in the cron job:
+
+| Commodity | Yahoo ticker | Raw quote unit | Normalized unit |
+|---|---|---|---|
+| coffee | `KC=F` | cents/lb | USD/kg |
+| cocoa | `CC=F` | USD/metric ton | USD/kg |
+| cotton | `CT=F` | cents/lb | USD/kg |
+| rice | `ZR=F` | cents/cwt | USD/kg |
+
+Manual rerun examples:
+
+```bash
+python ingest/daily_cron.py
+python ingest/daily_cron.py --start-date 2026-01-01 --end-date 2026-02-01
+python ingest/daily_cron.py --dry-run
+dbt seed --project-dir dbt --profiles-dir dbt
+dbt build --project-dir dbt --profiles-dir dbt
+```
+
+Debug checklist:
+
+- If ingest fails before dbt starts, check the uploaded `logs/` artifact.
+- If Yahoo returns no new rows, the workflow exits successfully and logs a warning.
+- If one Yahoo ticker fails, the other tickers are still written.
+- If `dbt build` fails, bronze data is kept and the workflow reports failure.
+- Confirm `MOTHERDUCK_TOKEN` can write to the `agri_dwh` database.

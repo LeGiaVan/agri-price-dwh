@@ -5,7 +5,7 @@ with regions as (
         country,
         region,
         source
-    from {{ ref('silver_fao_prices') }}
+    from {{ ref('silver_wb_prices') }}
 
     union
 
@@ -13,7 +13,7 @@ with regions as (
         country,
         region,
         source
-    from {{ ref('silver_wb_prices') }}
+    from {{ ref('silver_yf_prices') }}
 )
 
 select

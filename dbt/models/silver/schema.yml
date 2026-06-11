@@ -1,45 +1,6 @@
 version: 2
 
 models:
-  - name: silver_fao_prices
-    description: "Cleaned FAO price observations normalized to USD per kilogram."
-    data_tests:
-      - unique_combination_of_columns:
-          combination_of_columns: ["commodity", "price_date", "region", "source"]
-    columns:
-      - name: commodity
-        description: "Standard commodity code: rice, coffee, pepper, cashew, or rubber."
-        data_tests:
-          - not_null
-          - accepted_values:
-              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
-      - name: price_date
-        description: "Observation date. Monthly or yearly data is represented by the first day of the period."
-        data_tests:
-          - not_null
-      - name: region
-        description: "Market, province, country region, or unknown when unavailable."
-        data_tests:
-          - not_null
-      - name: country
-        description: "Country attached to the observation."
-      - name: price_usd_per_kg
-        description: "Commodity price converted to USD per kilogram."
-        data_tests:
-          - not_null
-      - name: currency
-        description: "Original or standardized currency code."
-      - name: unit
-        description: "Original price unit from source data."
-      - name: source
-        description: "Source system identifier."
-        data_tests:
-          - not_null
-          - accepted_values:
-              values: ['FAO']
-      - name: ingested_at
-        description: "Timestamp when the raw observation was loaded."
-
   - name: silver_wb_prices
     description: "Cleaned World Bank commodity price observations normalized to USD per kilogram."
     data_tests:
@@ -47,11 +8,11 @@ models:
           combination_of_columns: ["commodity", "price_date", "region", "source"]
     columns:
       - name: commodity
-        description: "Standard commodity code: rice, coffee, pepper, cashew, or rubber."
+        description: "Standard commodity code in the warehouse commodity scope."
         data_tests:
           - not_null
           - accepted_values:
-              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber']
+              values: ['rice', 'coffee', 'pepper', 'cashew', 'rubber', 'cocoa', 'cotton']
       - name: price_date
         description: "Observation date. Monthly or yearly data is represented by the first day of the period."
         data_tests:
@@ -78,3 +39,44 @@ models:
               values: ['WORLD_BANK']
       - name: ingested_at
         description: "Timestamp when the raw observation was loaded."
+
+  - name: silver_yf_prices
+    description: "Cleaned Yahoo Finance commodity futures prices normalized to USD per kilogram."
+    data_tests:
+      - unique_combination_of_columns:
+          combination_of_columns: ["commodity", "price_date", "region", "source"]
+    columns:
+      - name: commodity
+        description: "Standard commodity code from supported Yahoo futures contracts."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['rice', 'coffee', 'cocoa', 'cotton']
+      - name: price_date
+        description: "Daily futures price observation date."
+        data_tests:
+          - not_null
+      - name: region
+        description: "Market label for the futures contract."
+        data_tests:
+          - not_null
+      - name: country
+        description: "Country attached to the futures market."
+      - name: price_usd_per_kg
+        description: "Close price normalized to USD per kilogram from contract units."
+        data_tests:
+          - not_null
+      - name: currency
+        description: "Standardized currency code."
+      - name: unit
+        description: "Original futures quote unit."
+      - name: source
+        description: "Source system identifier."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['YAHOO_FINANCE']
+      - name: ingested_at
+        description: "Timestamp when the raw observation was loaded."
+      - name: is_imputed
+        description: "True when the row is weekend fill-forward data rather than an observed Yahoo close."

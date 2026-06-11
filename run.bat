@@ -1,21 +1,16 @@
 @echo off
 if "%1"=="init-db" goto init-db
-if "%1"=="seed-bronze" goto seed-bronze
 if "%1"=="ingest-wb" goto ingest-wb
 if "%1"=="run-dashboard" goto run-dashboard
 if "%1"=="run-dbt" goto run-dbt
 if "%1"=="ingest" goto ingest
 if "%1"=="start-all" goto start-all
 
-echo Usage: run.bat [init-db^|seed-bronze^|run-dashboard^|run-dbt^|ingest^|start-all]
+echo Usage: run.bat [init-db^|ingest-wb^|run-dashboard^|run-dbt^|ingest^|start-all]
 goto :eof
 
 :init-db
 python scripts/db_init.py
-goto :eof
-
-:seed-bronze
-docker compose run --rm fao_bronze_seed
 goto :eof
 
 :ingest-wb

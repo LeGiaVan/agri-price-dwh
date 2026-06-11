@@ -75,7 +75,7 @@ refactor/ten-phan        # refactor code
 
 **Ví dụ tốt:**
 ```
-feature/fao-ingest-script
+feature/yahoo-ingest-script
 feature/silver-price-cleaning
 fix/null-handling-worldbank
 docs/update-readme
@@ -96,8 +96,8 @@ Dùng cấu trúc: `type: mô tả ngắn gọn`
 
 **Ví dụ tốt:**
 ```
-feat: add fao_ingest.py with retry logic
-feat: add silver_fao_prices dbt model
+feat: add yf_ingest.py with retry logic
+feat: add silver_yf_prices dbt model
 fix: handle null price values in worldbank data
 docs: update README with quickstart guide
 chore: pin duckdb version to 1.1.3

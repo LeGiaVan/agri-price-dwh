@@ -13,19 +13,6 @@ services:
     networks:
       - agri_net
 
-  fao_bronze_seed:
-    build:
-      context: .
-      dockerfile: ingest/Dockerfile
-    container_name: agri_fao_bronze_seed
-    env_file: .env
-    volumes:
-      - ./scripts/fao_bronze_seed.py:/app/fao_bronze_seed.py
-      - ./logs:/app/logs
-    command: python /app/fao_bronze_seed.py
-    networks:
-      - agri_net
-
   dbt:
     build:
       context: .

@@ -31,8 +31,11 @@ COMMODITY_VI = {
     'pepper': 'Tiêu',
     'cashew': 'Hạt điều',
     'rubber': 'Cao su',
+    'cocoa': 'Cocoa',
+    'cotton': 'Cotton',
 }
 COMMODITY_EMOJI = {
+    'cocoa': 'CO', 'cotton': 'CT',
     'rice': '🌾', 'coffee': '☕', 'pepper': '🌶️', 'cashew': '🥜', 'rubber': '🌿',
 }
 
@@ -43,6 +46,8 @@ COLORS = {
     'pepper': '#C0392B',
     'cashew': '#B8860B',
     'rubber': '#2E8B57',
+    'cocoa': '#7C4A2D',
+    'cotton': '#4B7F9F',
 }
 CARD_GRADIENTS = {
     'rice':   'linear-gradient(135deg,#0D530E,#306D29)',
@@ -50,6 +55,8 @@ CARD_GRADIENTS = {
     'pepper': 'linear-gradient(135deg,#7b0d0d,#C0392B)',
     'cashew': 'linear-gradient(135deg,#7a5200,#B8860B)',
     'rubber': 'linear-gradient(135deg,#1a5c38,#2E8B57)',
+    'cocoa': 'linear-gradient(135deg,#4A2415,#7C4A2D)',
+    'cotton': 'linear-gradient(135deg,#275066,#4B7F9F)',
 }
 
 # ─── Page config ──────────────────────────────────────────────────────────────
@@ -364,6 +371,7 @@ def load_prices() -> pd.DataFrame:
         SELECT f.price_date, f.commodity,
                f.price_usd_per_kg, f.price_change_pct,
                f.price_7d_avg, f.price_30d_avg,
+               f.source, f.is_imputed,
                c.name_vi, c.category
         FROM gold.fact_price_daily f
         JOIN gold.dim_commodity c ON f.commodity_id = c.commodity_id
@@ -481,7 +489,7 @@ with st.sidebar:
     st.markdown(f"""
     <div style="font-size:.72rem;color:#a8c87a;line-height:2;">
       Dữ liệu đến: <b style="color:#E7E1B1">{max_d.strftime('%m/%Y')}</b><br>
-      Nguồn: FAO · World Bank<br>
+      Nguồn: World Bank · Yahoo Finance<br>
       Cache: 1 giờ
     </div>
     """, unsafe_allow_html=True)

@@ -34,8 +34,8 @@ Use the helper script so dbt loads `.env` and keeps DuckDB/MotherDuck cache file
 
 The Silver models expect raw source tables in MotherDuck:
 
-- `bronze.fao_prices_raw`
 - `bronze.wb_prices_raw`
+- `bronze.yf_prices_raw`
 
 The models can tolerate several common column names, but ingestion should ideally provide:
 

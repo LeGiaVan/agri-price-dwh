@@ -4,6 +4,11 @@ import os
 import logging
 from dotenv import load_dotenv
 
+try:
+    from ingest.utils import motherduck_connection
+except ImportError:
+    from utils import motherduck_connection
+
 load_dotenv()
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
@@ -58,16 +63,26 @@ def ingest_worldbank():
         # Đổi tên mặt hàng về tên chuẩn
         df_melted['commodity'] = df_melted['original_name'].map(selected_cols)
         df_melted['source'] = 'world_bank_pink_sheet'
+        df_melted['ingested_at'] = pd.Timestamp.utcnow()
 
         # Loại bỏ các dòng không có giá trị (NaN)
         df_melted = df_melted.dropna(subset=['price_usd'])
         df_melted['price_date'] = df_melted['price_date'].astype(str)
 
         log.info(f"--- 3. Đang nạp {len(df_melted)} dòng vào MotherDuck ---")
-        con = duckdb.connect("md:agri_dwh")
+        con = motherduck_connection()
 
         con.execute("CREATE TABLE IF NOT EXISTS bronze.wb_prices_raw AS SELECT * FROM df_melted WHERE 1=0")
-        con.execute("INSERT INTO bronze.wb_prices_raw SELECT * FROM df_melted")
+        con.execute("ALTER TABLE bronze.wb_prices_raw ADD COLUMN IF NOT EXISTS ingested_at TIMESTAMP")
+        con.register("incoming_wb_prices", df_melted)
+        con.execute("""
+        DELETE FROM bronze.wb_prices_raw
+        WHERE (price_date, commodity, source) IN (
+            SELECT price_date, commodity, source FROM incoming_wb_prices
+        )
+        """)
+        con.execute("INSERT INTO bronze.wb_prices_raw SELECT * FROM incoming_wb_prices")
+        con.unregister("incoming_wb_prices")
 
         count = con.execute("SELECT COUNT(*) FROM bronze.wb_prices_raw").fetchone()[0]
         log.info(f"THÀNH CÔNG: World Bank nạp được {count} dòng.")

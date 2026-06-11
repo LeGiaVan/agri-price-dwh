@@ -6,3 +6,4 @@ duckdb==1.5.2
 datasets==3.0.0
 schedule==1.2.2
 openpyxl==3.1.2
+dbt-duckdb>=1.9.0

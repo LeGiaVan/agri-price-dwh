@@ -5,7 +5,7 @@ sources:
     schema: bronze
     description: "Raw ingestion tables loaded into MotherDuck by the ingest pipeline."
     tables:
-      - name: fao_prices_raw
-        description: "Raw agricultural market data from FAO or HuggingFace before cleaning."
       - name: wb_prices_raw
         description: "Raw monthly commodity price data from the World Bank API before cleaning."
+      - name: yf_prices_raw
+        description: "Raw Yahoo Finance commodity futures prices before cleaning."
