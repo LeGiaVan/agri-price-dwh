@@ -145,6 +145,45 @@ label { color: #306D29 !important; }
     box-shadow: 0 4px 20px rgba(13,83,14,0.08);
 }
 
+.insight-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .8rem;
+    margin: .2rem 0 1.2rem;
+}
+.insight-card {
+    background: linear-gradient(135deg, rgba(251,245,221,.92), rgba(231,225,177,.42));
+    border: 1px solid rgba(48,109,41,.22);
+    border-radius: 14px;
+    padding: .95rem 1rem;
+    box-shadow: 0 8px 24px rgba(13,83,14,.08);
+}
+.insight-label {
+    color: #5a7a3a;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: .35rem;
+}
+.insight-value {
+    color: #0D530E;
+    font-size: 1.35rem;
+    font-weight: 850;
+    line-height: 1.1;
+}
+.insight-sub {
+    color: #5a7a3a;
+    font-size: .76rem;
+    margin-top: .35rem;
+}
+@media (max-width: 900px) {
+    .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .insight-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Page header banner ── */
 .page-banner {
     background: linear-gradient(120deg, rgba(231,225,177,.6), rgba(244,240,220,.8));
@@ -344,6 +383,27 @@ def load_forecast():
         return df
     except: return None
 
+def normalize_price_rows(raw: pd.DataFrame) -> pd.DataFrame:
+    df = raw.copy()
+    df["price_date"] = pd.to_datetime(df["price_date"])
+
+    grouped = (
+        df.groupby(["price_date", "commodity"], as_index=False)
+        .agg({
+            "price_usd_per_kg": "mean",
+            "name_vi": "first",
+            "category": "first",
+        })
+        .sort_values(["commodity", "price_date"])
+        .reset_index(drop=True)
+    )
+
+    by_comm = grouped.groupby("commodity")["price_usd_per_kg"]
+    grouped["price_change_pct"] = by_comm.pct_change() * 100
+    grouped["price_7d_avg"] = by_comm.transform(lambda s: s.rolling(7, min_periods=1).mean())
+    grouped["price_30d_avg"] = by_comm.transform(lambda s: s.rolling(30, min_periods=1).mean())
+    return grouped
+
 # ─── Load data ────────────────────────────────────────────────────────────────
 with st.spinner(""):
     try:
@@ -391,8 +451,27 @@ with st.sidebar:
 
     min_d = df_all["price_date"].min().date()
     max_d = df_all["price_date"].max().date()
-    date_range = st.date_input("Khoảng thời gian",
-                               value=(min_d, max_d), min_value=min_d, max_value=max_d)
+    period_preset = st.radio(
+        "Khoảng thời gian",
+        ["1 năm", "3 năm", "5 năm", "Tất cả", "Tùy chỉnh"],
+        index=3,
+        horizontal=True,
+    )
+    preset_years = {"1 năm": 1, "3 năm": 3, "5 năm": 5}
+    start_default = min_d
+    if period_preset in preset_years:
+        start_default = max(
+            min_d,
+            (pd.Timestamp(max_d) - pd.DateOffset(years=preset_years[period_preset])).date(),
+        )
+    date_range = st.slider(
+        "Chọn khoảng",
+        min_value=min_d,
+        max_value=max_d,
+        value=(start_default, max_d),
+        format="MM/YYYY",
+        key=f"date_slider_{period_preset}",
+    )
 
     currency = st.radio("Đơn vị tiền tệ", ["USD / kg", "VND / kg"])
     mult = USD_TO_VND if "VND" in currency else 1
@@ -412,14 +491,20 @@ if not selected:
     st.warning("⚠️ Vui lòng chọn ít nhất 1 mặt hàng.")
     st.stop()
 
-s_dt = pd.Timestamp(date_range[0]) if len(date_range) >= 1 else df_all["price_date"].min()
-e_dt = pd.Timestamp(date_range[1]) if len(date_range) == 2 else df_all["price_date"].max()
+df_all_norm = normalize_price_rows(df_all)
 
-df = df_all[
-    df_all["commodity"].isin(selected) &
-    (df_all["price_date"] >= s_dt) &
-    (df_all["price_date"] <= e_dt)
+s_dt = pd.Timestamp(date_range[0]) if len(date_range) >= 1 else df_all_norm["price_date"].min()
+e_dt = pd.Timestamp(date_range[1]) if len(date_range) == 2 else df_all_norm["price_date"].max()
+
+df = df_all_norm[
+    df_all_norm["commodity"].isin(selected) &
+    (df_all_norm["price_date"] >= s_dt) &
+    (df_all_norm["price_date"] <= e_dt)
 ].copy()
+if df.empty:
+    st.warning("Không có dữ liệu trong bộ lọc hiện tại.")
+    st.stop()
+
 df["price"]     = df["price_usd_per_kg"] * mult
 df["price_7d"]  = df["price_7d_avg"]    * mult
 df["price_30d"] = df["price_30d_avg"]   * mult
@@ -448,6 +533,40 @@ if page == "Tổng quan":
     banner("🌾", "Tổng quan Giá Nông sản Việt Nam",
            f"Dữ liệu từ {s_dt.strftime('%m/%Y')} → {e_dt.strftime('%m/%Y')} · {len(selected)} mặt hàng")
 
+    latest_rows = df.sort_values("price_date").groupby("commodity", as_index=False).tail(1)
+    latest_date = df["price_date"].max()
+    pulse = latest_rows.assign(abs_change=latest_rows["price_change_pct"].abs().fillna(0))
+    strongest = pulse.sort_values("abs_change", ascending=False).iloc[0]
+    avg_move = pulse["abs_change"].mean()
+    strongest_name = f"{COMMODITY_EMOJI.get(strongest['commodity'],'')} {COMMODITY_VI.get(strongest['commodity'], strongest['commodity'])}"
+    strongest_change = strongest["price_change_pct"]
+    strongest_arrow = "▲" if (strongest_change or 0) >= 0 else "▼"
+
+    st.markdown(f"""
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-label">Cập nhật mới nhất</div>
+        <div class="insight-value">{latest_date.strftime('%m/%Y')}</div>
+        <div class="insight-sub">{len(df):,} điểm dữ liệu sau lọc</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-label">Biến động mạnh nhất</div>
+        <div class="insight-value">{strongest_name}</div>
+        <div class="insight-sub">{strongest_arrow} {abs(strongest_change or 0):.2f}% so với kỳ trước</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-label">Dao động trung bình</div>
+        <div class="insight-value">{avg_move:.2f}%</div>
+        <div class="insight-sub">Trên {len(latest_rows)} mặt hàng đang chọn</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-label">Khoảng phân tích</div>
+        <div class="insight-value">{s_dt.strftime('%m/%Y')} → {e_dt.strftime('%m/%Y')}</div>
+        <div class="insight-sub">Đơn vị hiện tại: {cur}/kg</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # ── Metric cards ──────────────────────────────────────────────────────────
     cols = st.columns(len(selected))
     for i, comm in enumerate(selected):
@@ -456,13 +575,14 @@ if page == "Tổng quan":
         lat        = df_c.iloc[-1]
         price_now  = lat["price"]
         chg        = lat["price_change_pct"]
+        chg_value  = 0 if pd.isna(chg) else chg
         cutoff     = lat["price_date"] - pd.DateOffset(weeks=52)
         df52       = df_c[df_c["price_date"] >= cutoff]
         hi52, lo52 = df52["price"].max(), df52["price"].min()
-        sign  = "up"  if (chg or 0) >= 0 else "down"
-        arrow = "▲"   if (chg or 0) >= 0 else "▼"
-        badge_cls = "badge-up" if (chg or 0) >= 0 else "badge-down"
-        ch_str = f"{arrow} {abs(chg):.2f}%" if chg is not None else "—"
+        sign  = "up"  if chg_value >= 0 else "down"
+        arrow = "▲"   if chg_value >= 0 else "▼"
+        badge_cls = "badge-up" if chg_value >= 0 else "badge-down"
+        ch_str = f"{arrow} {abs(chg_value):.2f}%"
         with cols[i]:
             st.markdown(f"""
             <div class="mc" style="background:{CARD_GRADIENTS.get(comm,'linear-gradient(135deg,#1e3a5f,#2d5a9e)')}">
@@ -758,4 +878,4 @@ elif page == "Dự báo":
 # ══════════════════════════════════════════════════════════════════════════════
 elif page == "Trợ lý AI":
     from genbi_chat import render_genbi_page
-    render_genbi_page(df_all, cur, mult)
+    render_genbi_page(df_all_norm, cur, mult)

@@ -1,313 +1,81 @@
-import os
-from datetime import UTC, datetime
-
 import pandas as pd
-import requests
+import duckdb
+import os
+import logging
+from dotenv import load_dotenv
 
-try:
-    from ingest.utils import (
-        get_logger,
-        motherduck_connection,
-        parse_json_env,
-        retry,
-        write_dataframe,
-    )
-except ModuleNotFoundError:
-    from utils import (
-        get_logger,
-        motherduck_connection,
-        parse_json_env,
-        retry,
-        write_dataframe,
-    )
-
-
-API_TEMPLATE = (
-    "https://api.worldbank.org/v2/en/country/WLD/indicator/{indicator}"
-    "?format=json&per_page=20000&date={date_range}"
+load_dotenv()
+os.makedirs("logs", exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler("logs/ingest_error.log"), logging.StreamHandler()]
 )
-DEFAULT_DATE_RANGE = "2000M01:2025M12"
-PINK_SHEET_URL = (
-    "https://thedocs.worldbank.org/en/doc/"
-    "74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/"
-    "CMO-Historical-Data-Monthly.xlsx"
-)
+log = logging.getLogger(__name__)
 
-# Override this with WB_COMMODITY_SERIES when the exact World Bank commodity
-# indicator codes are agreed by the team. Shape:
-# {"rice": {"indicator": "...", "unit": "USD/mt"}, ...}
-DEFAULT_SERIES = {
-    "rice": {"indicator": "PRICENPQUSDM", "unit": "USD/mt"},
-    "coffee": {"indicator": "PCOFFOTMUSDM", "unit": "USD/kg"},
-    "rubber": {"indicator": "PRUBBUSDM", "unit": "USD/kg"},
-}
-
-LOG = get_logger("ingest.worldbank")
+WB_EXCEL_URL = "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx"
 
 
-@retry(attempts=3, delay_seconds=10)
-def fetch_indicator(indicator: str, date_range: str) -> list[dict]:
-    url = API_TEMPLATE.format(indicator=indicator, date_range=date_range)
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
-    payload = response.json()
+def ingest_worldbank():
+    try:
+        log.info("--- 1. Đang tải và phân tích cấu hình file Excel ---")
+        # Đọc file với skiprows=4 (thường là dòng bắt đầu có tên mặt hàng)
+        df = pd.read_excel(WB_EXCEL_URL, sheet_name='Monthly Prices', skiprows=4)
 
-    if not isinstance(payload, list) or len(payload) < 2:
-        LOG.warning(
-            "Unexpected World Bank API response for indicator=%s: %s",
-            indicator,
-            str(payload)[:300],
-        )
-        return []
+        # Làm sạch tên cột (xóa khoảng trắng thừa)
+        df.columns = [str(c).strip() for c in df.columns]
 
-    metadata = payload[0] or {}
-    rows = payload[1] or []
-    if metadata.get("total") in (0, "0") or not rows:
-        LOG.warning("World Bank returned no rows for indicator=%s", indicator)
+        # 2. Tìm cột 'Date' (thường là cột đầu tiên)
+        date_col = df.columns[0]
 
-    return rows
+        # 3. Tìm các cột dựa trên từ khóa (để tránh lỗi sai tên tuyệt đối)
+        def find_col(keyword):
+            for col in df.columns:
+                if keyword.lower() in col.lower():
+                    return col
+            return None
 
-
-def normalize_worldbank() -> pd.DataFrame:
-    series = parse_json_env("WB_COMMODITY_SERIES", DEFAULT_SERIES)
-    date_range = os.getenv("WB_DATE_RANGE", DEFAULT_DATE_RANGE)
-    frames: list[pd.DataFrame] = []
-
-    for commodity, config in series.items():
-        indicator = config["indicator"]
-        unit = config.get("unit", "USD/kg")
-        LOG.info(
-            "Fetching World Bank commodity=%s indicator=%s date_range=%s",
-            commodity,
-            indicator,
-            date_range,
-        )
-        rows = fetch_indicator(indicator, date_range)
-        if not rows:
-            continue
-
-        frame = pd.DataFrame(rows)
-        frame["commodity"] = commodity
-        frame["indicator_code"] = indicator
-        frame["indicator_name"] = frame.get("indicator", pd.Series(index=frame.index)).apply(
-            lambda value: value.get("value") if isinstance(value, dict) else None
-        )
-        frame["price_date"] = parse_worldbank_dates(frame["date"])
-        frame["price_usd"] = pd.to_numeric(frame["value"], errors="coerce")
-        frame["region"] = "global"
-        frame["country"] = "World"
-        frame["currency"] = "USD"
-        frame["unit"] = unit
-        frame["source"] = "WORLD_BANK_API"
-        frame["ingested_at"] = datetime.now(UTC).replace(tzinfo=None)
-        frame["year"] = frame["price_date"].dt.year
-        frame["month"] = frame["price_date"].dt.month
-        frames.append(frame)
-
-    if not frames:
-        LOG.warning(
-            "World Bank Indicators API returned no commodity rows; falling back to Pink Sheet monthly workbook"
-        )
-        return normalize_pink_sheet()
-
-    normalized = pd.concat(frames, ignore_index=True)
-    normalized = normalized[
-        [
-            "commodity",
-            "price_date",
-            "year",
-            "month",
-            "region",
-            "country",
-            "price_usd",
-            "currency",
-            "unit",
-            "source",
-            "indicator_code",
-            "indicator_name",
-            "ingested_at",
-        ]
-    ].dropna(subset=["commodity", "price_date", "price_usd"])
-
-    return normalized.drop_duplicates(
-        subset=["commodity", "price_date", "region", "source"], keep="last"
-    )
-
-
-def parse_worldbank_dates(values: pd.Series) -> pd.Series:
-    clean = values.astype(str).str.replace(
-        r"^(\d{4})M(\d{1,2})$",
-        lambda match: f"{match.group(1)}-{int(match.group(2)):02d}-01",
-        regex=True,
-    )
-    clean = clean.str.replace(
-        r"^(\d{4})Q([1-4])$",
-        lambda match: f"{match.group(1)}-{(int(match.group(2)) - 1) * 3 + 1:02d}-01",
-        regex=True,
-    )
-    return pd.to_datetime(clean, errors="coerce")
-
-
-def normalize_pink_sheet() -> pd.DataFrame:
-    df = pd.read_excel(PINK_SHEET_URL, sheet_name="Monthly Prices", skiprows=4)
-    df.columns = [str(column).strip() for column in df.columns]
-    date_col = df.columns[0]
-
-    column_map = {
-        "rice": find_column(df.columns, ("rice, thai 5%", "rice, thailand 5%", "rice")),
-        "coffee": find_column(df.columns, ("coffee, robusta", "coffee, arabica", "coffee")),
-        "rubber": find_column(df.columns, ("rubber, tsr20", "rubber, rss3", "rubber")),
-    }
-    column_map = {
-        commodity: column
-        for commodity, column in column_map.items()
-        if column is not None
-    }
-
-    if not column_map:
-        raise ValueError("Could not find supported commodity columns in Pink Sheet workbook")
-
-    LOG.info("Pink Sheet columns selected: %s", column_map)
-    selected = df[[date_col] + list(column_map.values())].copy()
-    selected = selected.rename(columns={date_col: "price_date"})
-    melted = selected.melt(
-        id_vars=["price_date"],
-        var_name="indicator_name",
-        value_name="price_usd",
-    )
-    reverse_map = {column: commodity for commodity, column in column_map.items()}
-    melted["commodity"] = melted["indicator_name"].map(reverse_map)
-    melted["price_date"] = parse_worldbank_dates(melted["price_date"])
-    melted["price_usd"] = pd.to_numeric(melted["price_usd"], errors="coerce")
-    melted["year"] = melted["price_date"].dt.year
-    melted["month"] = melted["price_date"].dt.month
-    melted["region"] = "global"
-    melted["country"] = "World"
-    melted["currency"] = "USD"
-    melted["unit"] = melted["commodity"].map(
-        {
-            "rice": "USD/mt",
-            "coffee": "USD/kg",
-            "rubber": "USD/kg",
+        mapping = {
+            find_col("Coffee, Arabica"): "coffee",
+            find_col("Rice, Thai 5%"): "rice",
+            find_col("Rubber, TSR20"): "rubber",
+            find_col("Cocoa"): "cocoa",
+            find_col("Cotton"): "cotton"
         }
-    )
-    melted["source"] = "WORLD_BANK"
-    melted["indicator_code"] = "PINK_SHEET_MONTHLY"
-    melted["ingested_at"] = datetime.now(UTC).replace(tzinfo=None)
 
-    normalized = melted[
-        [
-            "commodity",
-            "price_date",
-            "year",
-            "month",
-            "region",
-            "country",
-            "price_usd",
-            "currency",
-            "unit",
-            "source",
-            "indicator_code",
-            "indicator_name",
-            "ingested_at",
-        ]
-    ].dropna(subset=["commodity", "price_date", "price_usd"])
+        # Lọc bỏ các cột không tìm thấy
+        selected_cols = {k: v for k, v in mapping.items() if k is not None}
 
-    return normalized.drop_duplicates(
-        subset=["commodity", "price_date", "region", "source"], keep="last"
-    )
+        log.info(f"Đã tìm thấy các cột: {list(selected_cols.keys())}")
 
+        # 4. Lọc và định dạng lại dữ liệu
+        df_filtered = df[[date_col] + list(selected_cols.keys())].copy()
+        df_filtered = df_filtered.rename(columns={date_col: 'price_date'})
 
-def find_column(columns: list[str], candidates: tuple[str, ...]) -> str | None:
-    lowered = {column.lower(): column for column in columns}
-    for candidate in candidates:
-        for lowered_column, original_column in lowered.items():
-            if candidate in lowered_column:
-                return original_column
-    return None
+        # Chuyển từ bảng ngang sang bảng dọc
+        df_melted = df_filtered.melt(id_vars=['price_date'], var_name='original_name', value_name='price_usd')
 
+        # Đổi tên mặt hàng về tên chuẩn
+        df_melted['commodity'] = df_melted['original_name'].map(selected_cols)
+        df_melted['source'] = 'world_bank_pink_sheet'
 
-def ingest_worldbank() -> int:
-    LOG.info("Starting World Bank ingest")
-    normalized = normalize_worldbank()
-    LOG.info(
-        "World Bank normalized rows=%s commodities=%s",
-        len(normalized),
-        sorted(normalized["commodity"].unique().tolist()) if not normalized.empty else [],
-    )
+        # Loại bỏ các dòng không có giá trị (NaN)
+        df_melted = df_melted.dropna(subset=['price_usd'])
+        df_melted['price_date'] = df_melted['price_date'].astype(str)
 
-    columns = [
-        "commodity",
-        "price_date",
-        "year",
-        "month",
-        "region",
-        "country",
-        "price_usd",
-        "currency",
-        "unit",
-        "source",
-        "indicator_code",
-        "indicator_name",
-        "ingested_at",
-    ]
-    column_types = {
-        "commodity": "varchar",
-        "price_date": "date",
-        "year": "integer",
-        "month": "integer",
-        "region": "varchar",
-        "country": "varchar",
-        "price_usd": "double",
-        "currency": "varchar",
-        "unit": "varchar",
-        "source": "varchar",
-        "indicator_code": "varchar",
-        "indicator_name": "varchar",
-        "ingested_at": "timestamp",
-    }
-    create_sql = """
-        create table if not exists bronze.wb_prices_raw (
-            commodity varchar,
-            price_date date,
-            year integer,
-            month integer,
-            region varchar,
-            country varchar,
-            price_usd double,
-            currency varchar,
-            unit varchar,
-            source varchar,
-            indicator_code varchar,
-            indicator_name varchar,
-            ingested_at timestamp
-        )
-    """
+        log.info(f"--- 3. Đang nạp {len(df_melted)} dòng vào MotherDuck ---")
+        con = duckdb.connect("md:agri_dwh")
 
-    with motherduck_connection() as con:
-        write_dataframe(
-            con,
-            normalized,
-            "bronze.wb_prices_raw",
-            create_sql,
-            column_types,
-            columns,
-            LOG,
-        )
-        total = con.execute("select count(*) from bronze.wb_prices_raw").fetchone()[0]
+        con.execute("CREATE TABLE IF NOT EXISTS bronze.wb_prices_raw AS SELECT * FROM df_melted WHERE 1=0")
+        con.execute("INSERT INTO bronze.wb_prices_raw SELECT * FROM df_melted")
 
-    LOG.info(
-        "World Bank ingest complete: inserted_or_replaced_rows=%s total_bronze_rows=%s timestamp=%s",
-        len(normalized),
-        total,
-        datetime.now(UTC).isoformat(),
-    )
-    return len(normalized)
+        count = con.execute("SELECT COUNT(*) FROM bronze.wb_prices_raw").fetchone()[0]
+        log.info(f"THÀNH CÔNG: World Bank nạp được {count} dòng.")
+        con.close()
+
+    except Exception as e:
+        log.error(f"Lỗi: {e}")
 
 
 if __name__ == "__main__":
-    try:
-        ingest_worldbank()
-    except Exception:
-        LOG.exception("World Bank ingest failed")
-        raise
+    ingest_worldbank()
