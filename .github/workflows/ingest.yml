@@ -1,13 +1,22 @@
 name: Monthly Ingest
 
 on:
+  push:
+    branches:
+      - dev
   schedule:
-    - cron: '0 17 1 * *'
+    - cron:
+  push:
+    branches:
+      - dev '0 17 1 * *'
   workflow_dispatch:
 
 jobs:
   ingest:
-    runs-on: ubuntu-latest
+    runs-on:
+  push:
+    branches:
+      - dev ubuntu-latest
 
     steps:
       - name: Checkout repo
@@ -16,7 +25,10 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version:
+  push:
+    branches:
+      - dev '3.11'
 
       - name: Install dependencies
         run: |
