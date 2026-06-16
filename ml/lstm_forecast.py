@@ -103,6 +103,14 @@ def main() -> None:
         group[available_cols] = group[available_cols].ffill().bfill().fillna(0)
 
         train, val, test = train_val_test_split_by_time(group)
+
+        print(
+            commodity,
+            "train=", len(train),
+            "val=", len(val),
+            "test=", len(test)
+        )
+
         if min(len(train), len(val), len(test)) <= WINDOW:
             print(f"Skipping {commodity}: not enough rows for window={WINDOW}")
             continue
@@ -140,9 +148,6 @@ def main() -> None:
         val_pred = model.predict(X_val_seq).ravel()
         residual_std = float(np.std(y_val_seq - val_pred))
         test_pred = model.predict(X_test_seq).ravel()
-        lower = test_pred - 1.96 * residual_std
-        upper = test_pred + 1.96 * residual_std
-        # importance = shap_importance(model, X_train_seq, X_test_seq, available_cols)
 
         metrics.append(
             metric_row(
@@ -154,10 +159,41 @@ def main() -> None:
             )
         )
 
-        for date, pred, lo, hi in zip(test_dates, test_pred, lower, upper):
+        last_window = scaler.transform(
+            group[available_cols].tail(WINDOW)
+        )
+
+        future_window = last_window.copy()
+
+        last_date = pd.to_datetime(
+            group["price_date"].max()
+        )
+
+        FORECAST_HORIZON = 6
+
+        for step in range(1, FORECAST_HORIZON + 1):
+            X_future = future_window.reshape(
+                1,
+                WINDOW,
+                len(available_cols)
+            )
+
+            pred = model.predict(
+                X_future,
+                verbose=0
+            )[0][0]
+
+            lo = pred - 1.96 * residual_std
+            hi = pred + 1.96 * residual_std
+
+            forecast_date = (
+                    last_date
+                    + pd.DateOffset(months=step)
+            )
+
             forecast_rows.append(
                 {
-                    "date": pd.to_datetime(date).date(),
+                    "date": forecast_date.date(),
                     "commodity": commodity,
                     "predicted_price": float(pred),
                     "confidence_interval_lower": float(lo),
@@ -165,6 +201,14 @@ def main() -> None:
                     "model_name": "LSTM",
                     "created_at": pd.Timestamp.utcnow(),
                 }
+            )
+
+            next_row = future_window[-1].copy()
+
+            next_row[0] = pred
+
+            future_window = np.vstack(
+                [future_window[1:], next_row]
             )
 
         print(f"Trained LSTM for {commodity}: rows={len(test_pred)}, model={model_path}")

@@ -11,7 +11,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = PROJECT_ROOT / "ml" / "models"
 REPORT_PATH = PROJECT_ROOT / "ml" / "model_evaluation.md"
-COMMODITIES = ["rice", "coffee", "pepper"]
+COMMODITIES = ["rice", "coffee", "rubber"]
 
 
 def load_env() -> None:

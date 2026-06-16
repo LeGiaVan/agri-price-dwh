@@ -3,8 +3,33 @@ import pandas as pd
 import os
 from groq import Groq
 from dotenv import load_dotenv
+import duckdb
 
 load_dotenv()
+
+def load_forecast_context():
+    try:
+        token = os.getenv("MOTHERDUCK_TOKEN")
+
+        con = duckdb.connect(
+            f"md:agri_dwh?motherduck_token={token}"
+        )
+
+        df = con.execute("""
+            SELECT
+                forecast_date,
+                commodity,
+                predicted_price
+            FROM gold.fact_forecasts
+            ORDER BY commodity
+        """).df()
+
+        con.close()
+
+        return df
+
+    except Exception:
+        return pd.DataFrame()
 
 COMMODITY_VI = {
     'rice': 'Gạo', 'coffee': 'Cà phê',
@@ -66,16 +91,114 @@ def get_market_summary(df: pd.DataFrame, cur: str, mult: float) -> str:
         "Nguồn: FAO & World Bank",
         "5 mặt hàng xuất khẩu chủ lực của Việt Nam: gạo, cà phê, tiêu, hạt điều, cao su",
     ]
+
+    forecast_df = load_forecast_context()
+
+    if not forecast_df.empty:
+        lines.append("")
+        lines.append("DỰ BÁO GIÁ:")
+
+        for _, row in forecast_df.iterrows():
+            name = COMMODITY_VI.get(
+                row["commodity"],
+                row["commodity"]
+            )
+
+            lines.append(
+                f"{name}: "
+                f"{row['predicted_price'] * mult:.4f} "
+                f"{cur}/kg"
+            )
+
     return "\n".join(lines)
 
+def get_forecast_summary(
+    forecast_df: pd.DataFrame,
+    cur: str,
+    mult: float
+) -> str:
+
+    if forecast_df is None or forecast_df.empty:
+        return "Không có dữ liệu dự báo."
+
+    lines = [
+        "DỮ LIỆU DỰ BÁO GIÁ NÔNG SẢN",
+        "=" * 50
+    ]
+
+    for commodity in forecast_df["commodity"].unique():
+
+        df_c = (
+            forecast_df[
+                forecast_df["commodity"] == commodity
+            ]
+            .sort_values("date")
+        )
+
+        last_row = df_c.iloc[-1]
+
+        name = COMMODITY_VI.get(
+            commodity,
+            commodity
+        )
+
+        emoji = COMMODITY_EMOJI.get(
+            commodity,
+            ""
+        )
+
+        price = last_row["predicted_price"] * mult
+
+        lines.append(
+            f"{emoji} {name}: "
+            f"dự báo {price:.4f} {cur}/kg "
+            f"vào {last_row['date'].strftime('%d/%m/%Y')}"
+        )
+
+    return "\n".join(lines)
+
+def get_forecast_summary(forecast_df, cur, mult):
+    if forecast_df is None or forecast_df.empty:
+        return "Không có dữ liệu dự báo."
+
+    lines = [
+        "",
+        "DỮ LIỆU DỰ BÁO LSTM",
+        "=" * 30,
+    ]
+
+    latest_fc = (
+        forecast_df
+        .sort_values("date")
+        .groupby("commodity")
+        .last()
+        .reset_index()
+    )
+
+    for _, row in latest_fc.iterrows():
+        name = COMMODITY_VI.get(
+            row["commodity"],
+            row["commodity"]
+        )
+
+        emoji = COMMODITY_EMOJI.get(
+            row["commodity"],
+            ""
+        )
+
+        price = row["predicted_price"] * mult
+
+        lines.append(
+            f"{emoji} {name}: "
+            f"{price:.4f} {cur}/kg "
+            f"(dự báo)"
+        )
+
+    return "\n".join(lines)
 
 def call_groq(user_prompt: str, market_context: str, history: list) -> str:
     """Gọi Groq API với context thị trường và lịch sử chat."""
     api_key = os.getenv("GROQ_API_KEY")
-    try:
-        api_key = api_key or st.secrets["GROQ_API_KEY"]
-    except Exception:
-        pass
     if not api_key:
         return "❌ Chưa cấu hình GROQ_API_KEY trong `.env` hoặc Streamlit Secrets."
 
@@ -111,14 +234,34 @@ Nguyên tắc trả lời:
         return f"❌ Lỗi Groq API: {e}"
 
 
-def render_genbi_page(df_all: pd.DataFrame, cur: str, mult: float):
+def render_genbi_page(df_all: pd.DataFrame,forecast_df: pd.DataFrame, cur: str, mult: float):
     """Render toàn bộ trang GenBI."""
     st.title("🤖 Trợ lý AI Thị trường Nông sản")
     st.caption("Phân tích & tư vấn thị trường · Powered by **Groq** (Llama 3.3 70B)")
 
     # ── Market context ────────────────────────────────────────────────────────
-    market_ctx = get_market_summary(df_all, cur, mult)
-    with st.expander("📊 Dữ liệu thị trường đang dùng làm context", expanded=False):
+    market_ctx = get_market_summary(
+        df_all,
+        cur,
+        mult
+    )
+
+    forecast_ctx = get_forecast_summary(
+        forecast_df,
+        cur,
+        mult
+    )
+
+    market_ctx = (
+            market_ctx
+            + "\n\n"
+            + forecast_ctx
+    )
+
+    with st.expander(
+            "📊 Dữ liệu thị trường đang dùng làm context",
+            expanded=False
+    ):
         st.code(market_ctx, language="text")
 
     st.markdown("---")

@@ -315,6 +315,7 @@ def styled_axes(fig, height=420):
 
 # ─── Database ─────────────────────────────────────────────────────────────────
 def _token():
+    print("ENV TOKEN =", os.getenv("MOTHERDUCK_TOKEN"))
     try:    return st.secrets["MOTHERDUCK_TOKEN"]
     except: return os.getenv("MOTHERDUCK_TOKEN", "")
 
@@ -800,4 +801,4 @@ elif page == "Dự báo":
 # ══════════════════════════════════════════════════════════════════════════════
 elif page == "Trợ lý AI":
     from genbi_chat import render_genbi_page
-    render_genbi_page(df_all, cur, mult)
+    render_genbi_page(df_all,forecast_df, cur, mult)

@@ -91,6 +91,24 @@
     networks:
       - agri_net
 
+  ml:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ml
+
+    container_name: agri_ml
+
+    env_file: ../.env
+
+    volumes:
+      - ../ml:/app/ml
+      - ../logs:/app/logs
+
+    command: python ml/train.py
+
+    networks:
+      - agri_net
+
   dashboard:
     build:
       context: ..
