@@ -68,11 +68,7 @@ World Bank API / Yahoo Finance
 ### ⚠️ Automated Price Alerts (Email Integration)
 <div align="center">
   <img src="imgs/price_alert.png" alt="Price Alert" width="800"/>
-</div>
-
-### ⚙️ Interactive Filtering
-<div align="center">
-  <img src="imgs/filter.png" alt="Filter" width="800"/>
+  <img src="imgs/email_alert.png" alt="Email Alert" width="800"/>
 </div>
 
 </details>
