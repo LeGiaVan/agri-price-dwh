@@ -1,20 +1,45 @@
 .env
+.env*
 .venv/
+venv/
 .idea/
+.vscode/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.pyre/
 
+# dbt artifacts
 dbt/.duckdb_home/
 dbt/.user.yml
 dbt/logs/
 dbt/target/
 dbt/dbt_packages/
 .dbt/
+
+# Model artifacts
 ml/models/*.h5
-logs/*.log
+ml/models/*.pt
+ml/models/*.pkl
+
+# Logs
+logs/
+*.log
 
 # Dashboard dev
 dashboard/.venv312/
 dashboard/local_dev.duckdb
 check_db.py
 *.duckdb
+
+# IDE/editor
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+Desktop.ini
