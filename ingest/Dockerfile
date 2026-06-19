@@ -10,4 +10,4 @@ RUN mkdir -p /app/logs
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
-CMD ["python", "ingest/main.py"]
+CMD ["python", "ingest/worldbank_ingest.py"]

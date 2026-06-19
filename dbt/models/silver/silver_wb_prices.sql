@@ -28,6 +28,12 @@ standardized as (
         coalesce(
             try_cast(typed.raw_date as date),
             case
+                when typed.raw_date like '%M%' and length(typed.raw_date) = 7
+                    then make_date(
+                        cast(substring(typed.raw_date, 1, 4) as integer),
+                        cast(substring(typed.raw_date, 6, 2) as integer),
+                        1
+                    )
                 when typed.raw_year is not null and typed.raw_month between 1 and 12
                     then make_date(typed.raw_year, typed.raw_month, 1)
                 when typed.raw_year is not null
@@ -37,6 +43,7 @@ standardized as (
         coalesce(nullif(trim(typed.raw_region), ''), 'global') as region,
         coalesce(nullif(trim(typed.raw_country), ''), 'World') as country,
         case
+            when coalesce(mapping.commodity, lower(trim(typed.raw_commodity))) = 'rice' then typed.raw_price / 1000
             when lower(coalesce(typed.raw_unit, '')) like '%ton%' then typed.raw_price / 1000
             when lower(coalesce(typed.raw_unit, '')) like '%/mt%' then typed.raw_price / 1000
             when lower(coalesce(typed.raw_unit, '')) like '%/t%' then typed.raw_price / 1000
@@ -62,7 +69,7 @@ deduplicated as (
             order by ingested_at desc
         ) as row_number
     from standardized
-    where commodity in ('rice', 'coffee', 'pepper', 'cashew', 'rubber')
+    where commodity in ('rice', 'coffee', 'cocoa', 'cotton')
         and price_date is not null
         and price_usd_per_kg is not null
         and price_usd_per_kg > 0

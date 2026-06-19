@@ -71,118 +71,131 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* ════════════════════════════════════════
-   PALETTE  #FBF5DD · #E7E1B1 · #306D29 · #0D530E
-   Main area: cream/light — Sidebar: dark green
+   PREMIUM DARK THEME
    ════════════════════════════════════════ */
 
-/* ── Main area: để Streamlit tự handle light/dark ── */
+/* ── Main area ── */
 .block-container {
     background: transparent !important;
-    padding-top: 1.5rem !important;
+    padding-top: 3.5rem !important;
+}
+.stApp {
+    background-color: #0B0F19 !important;
+    background-image: radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.04), transparent 25%),
+                      radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04), transparent 25%);
 }
 
-/* ── Sidebar: luôn xanh lá đậm (đẹp trong cả 2 mode) ── */
+/* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0D530E 0%, #1e6b20 50%, #306D29 100%) !important;
-    border-right: 2px solid #0a3d0c !important;
+    background: #111827 !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
-[data-testid="stSidebar"] * { color: #E7E1B1 !important; }
-[data-testid="stSidebar"] .stMarkdown p { color: #c8c49a !important; }
+[data-testid="stSidebar"] * { color: #F8FAFC !important; }
+[data-testid="stSidebar"] .stMarkdown p { color: #94A3B8 !important; }
 
 /* ── Typography ── */
-h1 { background: linear-gradient(90deg,#0D530E,#306D29,#5a8a2a) !important;
-     -webkit-background-clip: text !important;
-     -webkit-text-fill-color: transparent !important;
-     font-weight: 800 !important; letter-spacing: -0.5px; }
-h2 { color: #0D530E !important; font-weight: 700 !important; }
-h3, h4 { color: #306D29 !important; font-weight: 600 !important; }
-p, li { color: #3d5c2e !important; }
-label { color: #306D29 !important; }
+h1 { 
+    background: linear-gradient(90deg, #38BDF8, #818CF8, #34D399) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-weight: 800 !important; letter-spacing: -0.5px; 
+}
+h2, h3, h4 { color: #F8FAFC !important; font-weight: 700 !important; }
+p, li { color: #CBD5E1 !important; }
+label { color: #94A3B8 !important; font-weight: 600 !important; }
 
-/* ── Metric card — FIX: bỏ backdrop-filter khỏi ::before để text không bị mờ ── */
+/* ── Metric card ── */
 .mc {
-    border-radius: 16px;
-    padding: 1.2rem 1.4rem;
-    margin-bottom: 0.6rem;
+    border-radius: 20px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 0.8rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.15);
-    transition: transform .2s ease, box-shadow .2s ease;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.mc:hover { transform: translateY(-3px); box-shadow: 0 20px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
-/* Shine effect ở góc trên — không blur text */
-.mc::after {
-    content: '';
-    position: absolute; top: -40%; left: -40%;
-    width: 80%; height: 80%;
-    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
-    pointer-events: none;
+.mc:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4); 
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
-.mc-emoji { font-size: 2.5rem; position: absolute; right: 1rem; top: 0.8rem;
-            opacity: .2; line-height: 1; }
-.mc-label { font-size: 0.72rem; text-transform: uppercase;
-            letter-spacing: 1.5px; color: rgba(255,255,255,0.65);
-            margin-bottom: .3rem; position: relative; }
-.mc-value { font-size: 1.55rem; font-weight: 800; color: #ffffff;
-            letter-spacing: -0.5px; line-height: 1.1; position: relative; }
-.mc-cur   { font-size: .75rem; font-weight: 400; opacity: .7; margin-left: 3px; }
-.mc-change{ font-size: 0.8rem; margin-top: .35rem; font-weight: 600; position: relative; }
-.mc-sub   { font-size: 0.7rem; color: rgba(255,255,255,.5);
-            margin-top: .45rem; line-height: 1.7; position: relative; }
-.up   { color: #4ade80; }
-.down { color: #f87171; }
+.mc-emoji { 
+    font-size: 3rem; position: absolute; right: 1rem; top: 1rem;
+    opacity: 0.15; line-height: 1; filter: saturate(0) brightness(2);
+}
+.mc-label { 
+    font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 1.5px; color: #94A3B8;
+    margin-bottom: 0.4rem; position: relative; font-weight: 600;
+}
+.mc-value { 
+    font-size: 1.7rem; font-weight: 800; color: #F8FAFC;
+    letter-spacing: -0.5px; line-height: 1.1; position: relative; 
+}
+.mc-cur   { font-size: 0.8rem; font-weight: 500; color: #64748B; margin-left: 4px; }
+.mc-change{ font-size: 0.85rem; margin-top: 0.5rem; font-weight: 600; position: relative; display: flex; align-items: center; gap: 4px;}
+.mc-sub   { font-size: 0.75rem; color: #64748B;
+            margin-top: 0.5rem; line-height: 1.6; position: relative; }
+            
 .badge {
-    display: inline-block; padding: 2px 10px; border-radius: 99px;
-    font-size: .68rem; font-weight: 700; letter-spacing: .5px;
-    margin-bottom: .3rem;
+    display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 6px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
 }
-.badge-up   { background: rgba(13,83,14,.15);  color: #1a6b1c; border: 1px solid rgba(13,83,14,.3); }
-.badge-down { background: rgba(192,57,43,.12);  color: #a93226; border: 1px solid rgba(192,57,43,.3); }
-.up   { color: #1a6b1c; }
-.down { color: #a93226; }
+.badge-up   { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-down { background: rgba(244, 63, 94, 0.15); color: #FB7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+.up   { color: #34D399; }
+.down { color: #FB7185; }
 
 /* ── Glass card ── */
 .glass {
-    background: rgba(231,225,177,0.25);
-    border: 1px solid rgba(48,109,41,0.2);
-    border-radius: 20px;
-    padding: 1.5rem 1.8rem;
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 1.8rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 20px rgba(13,83,14,0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
 }
 
 .insight-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: .8rem;
-    margin: .2rem 0 1.2rem;
+    gap: 1rem;
+    margin: 0.5rem 0 1.5rem;
 }
 .insight-card {
-    background: linear-gradient(135deg, rgba(251,245,221,.92), rgba(231,225,177,.42));
-    border: 1px solid rgba(48,109,41,.22);
-    border-radius: 14px;
-    padding: .95rem 1rem;
-    box-shadow: 0 8px 24px rgba(13,83,14,.08);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
 }
+.insight-card:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.12); }
 .insight-label {
-    color: #5a7a3a;
-    font-size: .68rem;
-    font-weight: 800;
-    letter-spacing: 1.2px;
+    color: #94A3B8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    margin-bottom: .35rem;
+    margin-bottom: 0.5rem;
 }
 .insight-value {
-    color: #0D530E;
-    font-size: 1.35rem;
-    font-weight: 850;
+    color: #F8FAFC;
+    font-size: 1.5rem;
+    font-weight: 800;
     line-height: 1.1;
 }
 .insight-sub {
-    color: #5a7a3a;
-    font-size: .76rem;
-    margin-top: .35rem;
+    color: #64748B;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
 }
 @media (max-width: 900px) {
     .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -193,168 +206,191 @@ label { color: #306D29 !important; }
 
 /* ── Page header banner ── */
 .page-banner {
-    background: linear-gradient(120deg, rgba(231,225,177,.6), rgba(244,240,220,.8));
-    border: 1.5px solid rgba(48,109,41,0.25);
-    border-radius: 16px;
-    padding: 1.2rem 1.8rem;
-    margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 1rem;
-    box-shadow: 0 2px 12px rgba(13,83,14,0.08);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
-.page-banner-icon { font-size: 2.4rem; }
+.page-banner-icon { font-size: 3rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 .page-banner-title {
-    font-size: 1.5rem; font-weight: 800;
-    background: linear-gradient(90deg, #0D530E, #306D29);
+    font-size: 1.8rem; font-weight: 800;
+    background: linear-gradient(90deg, #F8FAFC, #CBD5E1);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.page-banner-sub { font-size: .8rem; color: #5a7a3a; margin-top: .1rem; }
+.page-banner-sub { font-size: 0.9rem; color: #94A3B8; margin-top: 0.2rem; }
 
 /* ── Divider ── */
 .fancy-divider {
-    height: 1.5px;
-    background: linear-gradient(90deg, transparent, rgba(48,109,41,.4), transparent);
-    margin: 1.5rem 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 2rem 0;
     border: none;
 }
 
 /* ── Sidebar nav radio ── */
-div[data-testid="stRadio"] > div { gap: 4px !important; }
+div[data-testid="stRadio"] > div { gap: 6px !important; }
 div[data-testid="stRadio"] label {
-    border-radius: 10px !important;
-    padding: 8px 12px !important;
-    transition: background .15s !important;
-    color: #E7E1B1 !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    transition: all 0.2s ease !important;
+    color: #94A3B8 !important;
+    border: 1px solid transparent !important;
 }
 div[data-testid="stRadio"] label:hover {
-    background: rgba(231,225,177,.15) !important;
+    background: rgba(255,255,255,0.05) !important;
+    color: #F8FAFC !important;
 }
 div[data-testid="stRadio"] label[data-checked="true"] {
-    background: rgba(251,245,221,.2) !important;
+    background: rgba(56, 189, 248, 0.1) !important;
+    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    color: #38BDF8 !important;
 }
 
-/* ── Multiselect container (trong sidebar) ── */
+/* ── Multiselect container ── */
 [data-testid="stSidebar"] [data-baseweb="select"] > div,
 [data-testid="stSidebar"] [data-baseweb="base-input"],
 [data-testid="stSidebar"] div[class*="multiselect"] {
-    background: rgba(13,83,14,0.55) !important;
-    border-color: rgba(231,225,177,0.3) !important;
-    border-radius: 10px !important;
+    background: rgba(15, 23, 42, 0.5) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    border-radius: 12px !important;
 }
 
 /* ── Multiselect tags ── */
 [data-testid="stSidebar"] span[data-baseweb="tag"] {
-    background: rgba(231,225,177,0.2) !important;
-    border: 1px solid rgba(231,225,177,0.4) !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
     border-radius: 8px !important;
-    color: #E7E1B1 !important;
+    color: #38BDF8 !important;
 }
 [data-testid="stSidebar"] span[data-baseweb="tag"] span,
-[data-testid="stSidebar"] span[data-baseweb="tag"] button { color: #E7E1B1 !important; }
+[data-testid="stSidebar"] span[data-baseweb="tag"] button { color: #38BDF8 !important; }
 
-/* ── Date input & radio trong sidebar ── */
+/* ── Search inputs ── */
 [data-testid="stSidebar"] input,
 [data-testid="stSidebar"] [data-baseweb="input"] {
-    background: rgba(13,83,14,0.55) !important;
-    border-color: rgba(231,225,177,0.3) !important;
-    color: #E7E1B1 !important;
+    background: rgba(15, 23, 42, 0.5) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #F8FAFC !important;
     border-radius: 8px !important;
-}
-
-/* ── Buttons ── */
-.stButton > button {
-    background: rgba(48,109,41,.12) !important;
-    border: 1.5px solid rgba(48,109,41,.35) !important;
-    color: #0D530E !important;
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    transition: all .2s !important;
-}
-.stButton > button:hover {
-    background: rgba(48,109,41,.22) !important;
-    border-color: #306D29 !important;
-    transform: translateY(-1px) !important;
-}
-
-/* ── Download button ── */
-.stDownloadButton > button {
-    background: linear-gradient(135deg, rgba(13,83,14,.15), rgba(48,109,41,.1)) !important;
-    border: 1.5px solid rgba(48,109,41,.3) !important;
-    color: #0D530E !important;
-    border-radius: 10px !important;
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #E7E1B1; }
-::-webkit-scrollbar-thumb { background: #306D29; border-radius: 99px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0B0F19; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ── Buttons ── */
+.stButton > button {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    color: #F8FAFC !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+.stButton > button:hover {
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+    color: #38BDF8 !important;
+    transform: translateY(-1px) !important;
+}
 
 /* ── Expander ── */
 details {
-    background: rgba(231,225,177,.3) !important;
-    border: 1px solid rgba(48,109,41,.2) !important;
+    background: rgba(15, 23, 42, 0.4) !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
     border-radius: 12px !important;
 }
 
-/* ── Chat messages ── */
-[data-testid="stChatMessage"] {
-    background: rgba(244,240,220,.8) !important;
-    border: 1px solid rgba(48,109,41,.15) !important;
-    border-radius: 14px !important;
-    margin-bottom: .6rem !important;
+/* ── Select Dropdown Options ── */
+div[data-baseweb="popover"] > div {
+    background-color: #1E293B !important;
+}
+div[data-baseweb="popover"] li {
+    color: #F8FAFC !important;
+    background-color: transparent !important;
+}
+div[data-baseweb="popover"] li:hover {
+    background-color: rgba(56, 189, 248, 0.2) !important;
 }
 
-/* ── Alerts ── */
-.stAlert { border-radius: 12px !important; }
+/* ── Chat messages & Input ── */
+[data-testid="stChatMessage"] {
+    background: rgba(30, 41, 59, 0.6) !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    border-radius: 14px !important;
+    margin-bottom: 0.6rem !important;
+    color: #F8FAFC !important;
+}
+[data-testid="stChatMessage"] * { color: #F8FAFC !important; }
+[data-testid="stChatMessage"] p { color: #F8FAFC !important; }
+[data-testid="stChatMessage"] code { color: #38BDF8 !important; background: rgba(0,0,0,0.2) !important; }
+
+[data-testid="stBottomBlockContainer"] {
+    background-color: #0B0F19 !important;
+    padding-bottom: 1rem !important;
+}
+[data-testid="stChatInput"] {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 12px !important;
+}
+[data-testid="stChatInput"] textarea { color: #F8FAFC !important; }
+[data-testid="stChatInput"] svg { fill: #94A3B8 !important; }
 
 /* ── Input / select / date ── */
 input, select, textarea,
 [data-baseweb="input"] input,
 [data-baseweb="select"] {
-    background: #FBF5DD !important;
-    border-color: rgba(48,109,41,.3) !important;
-    color: #0D530E !important;
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #F8FAFC !important;
 }
 
 /* ── DataFrame ── */
 [data-testid="stDataFrame"] { border-radius: 12px !important; overflow: hidden; }
 
-/* ── Scrollbar (sidebar) ── */
-[data-testid="stSidebar"] ::-webkit-scrollbar-track { background: #0D530E; }
-[data-testid="stSidebar"] ::-webkit-scrollbar-thumb { background: #E7E1B1; }
+/* ── Alerts ── */
+.stAlert { border-radius: 12px !important; }
+
 </style>
 """, unsafe_allow_html=True)
 
 # ─── Plotly dark theme ────────────────────────────────────────────────────────
 PLOT_LAYOUT = dict(
-    plot_bgcolor  = "rgba(244,240,220,0.5)",
+    plot_bgcolor  = "rgba(15, 23, 42, 0.4)",
     paper_bgcolor = "rgba(0,0,0,0)",
-    font          = dict(color="#3d5c2e", family="Inter, sans-serif", size=12),
+    font          = dict(color="#94A3B8", family="Inter, sans-serif", size=12),
     legend        = dict(
-        bgcolor     = "rgba(251,245,221,0.9)",
-        bordercolor = "rgba(48,109,41,0.3)",
+        bgcolor     = "rgba(15, 23, 42, 0.8)",
+        bordercolor = "rgba(255,255,255,0.1)",
         borderwidth = 1,
-        font        = dict(size=12, color="#0D530E"),
+        font        = dict(size=12, color="#F8FAFC"),
     ),
     margin = dict(l=10, r=10, t=40, b=10),
     hoverlabel = dict(
-        bgcolor     = "#FBF5DD",
-        bordercolor = "rgba(48,109,41,.5)",
+        bgcolor     = "#1E293B",
+        bordercolor = "rgba(255,255,255,0.15)",
         font_size   = 13,
-        font_color  = "#0D530E",
+        font_color  = "#F8FAFC",
     ),
 )
 def styled_axes(fig, height=420):
     fig.update_xaxes(
-        gridcolor="rgba(48,109,41,0.12)", gridwidth=1,
-        zerolinecolor="rgba(48,109,41,0.2)",
-        tickfont=dict(color="#5a7a3a"), title_font=dict(color="#306D29"),
-        linecolor="rgba(48,109,41,0.2)",
+        gridcolor="rgba(255,255,255,0.05)", gridwidth=1,
+        zerolinecolor="rgba(255,255,255,0.1)",
+        tickfont=dict(color="#64748B"), title_font=dict(color="#94A3B8"),
+        linecolor="rgba(255,255,255,0.1)",
     )
     fig.update_yaxes(
-        gridcolor="rgba(48,109,41,0.12)", gridwidth=1,
-        zerolinecolor="rgba(48,109,41,0.2)",
-        tickfont=dict(color="#5a7a3a"), title_font=dict(color="#306D29"),
-        linecolor="rgba(48,109,41,0.2)",
+        gridcolor="rgba(255,255,255,0.05)", gridwidth=1,
+        zerolinecolor="rgba(255,255,255,0.1)",
+        tickfont=dict(color="#64748B"), title_font=dict(color="#94A3B8"),
+        linecolor="rgba(255,255,255,0.1)",
     )
     fig.update_layout(height=height, **PLOT_LAYOUT)
     return fig
@@ -390,6 +426,16 @@ def load_forecast():
         df["forecast_date"] = pd.to_datetime(df["forecast_date"])
         return df
     except: return None
+
+@st.cache_data(ttl=600, show_spinner=False)
+def load_alerts() -> pd.DataFrame:
+    try:
+        con = duckdb.connect(f"md:agri_dwh?motherduck_token={_token()}")
+        df = con.execute("SELECT * FROM bronze.price_alerts ORDER BY created_at DESC LIMIT 5").df()
+        con.close()
+        return df
+    except:
+        return pd.DataFrame()
 
 def normalize_price_rows(raw: pd.DataFrame) -> pd.DataFrame:
     df = raw.copy()
@@ -431,7 +477,7 @@ with st.sidebar:
         AgriPrice Vietnam
       </div>
       <div style="font-size:.68rem;color:#a8c87a;margin-top:.2rem;letter-spacing:.5px;">
-        DWH NHÓM 6 · 2025
+        DWH NHÓM 6 2025
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -538,6 +584,16 @@ def banner(icon, title, sub):
 # PAGE 1 — TỔNG QUAN
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "Tổng quan":
+    alerts_df = load_alerts()
+    if not alerts_df.empty:
+        recent_alerts = alerts_df[alerts_df['alert_date'] >= pd.to_datetime(pd.Timestamp.now().date() - pd.Timedelta(days=3))]
+        if not recent_alerts.empty:
+            st.markdown("#### 🔔 Cảnh báo Biến động Giá")
+            for idx, row in recent_alerts.iterrows():
+                direction = "tăng" if row['pct_change'] > 0 else "giảm"
+                st.warning(f"**{row['commodity'].upper()}** {direction} mạnh **{abs(row['pct_change']):.2f}%** vào ngày {row['alert_date']}. Phân tích AI: *{row['ai_comment']}*")
+            st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
+
     banner("🌾", "Tổng quan Giá Nông sản Việt Nam",
            f"Dữ liệu từ {s_dt.strftime('%m/%Y')} → {e_dt.strftime('%m/%Y')} · {len(selected)} mặt hàng")
 
@@ -668,32 +724,28 @@ elif page == "Phân tích":
     c_left, c_right = st.columns([1.4, 1], gap="large")
 
     with c_left:
-        st.markdown("#### 🗓️ Heatmap Mùa vụ")
+        st.markdown("#### 📦 Biên độ dao động Giá")
         heat_comm = st.selectbox("Mặt hàng",selected,
             format_func=lambda x:f"{COMMODITY_EMOJI.get(x,'')} {COMMODITY_VI.get(x,x)}",
             key="heat_sel", label_visibility="collapsed")
         df_h = df[df["commodity"] == heat_comm].copy()
         df_h["year"]  = df_h["price_date"].dt.year
-        df_h["month"] = df_h["price_date"].dt.month
-        pivot = df_h.pivot_table(index="year", columns="month", values="price", aggfunc="mean")
-        pivot.columns = ["T1","T2","T3","T4","T5","T6","T7","T8","T9","T10","T11","T12"][:len(pivot.columns)]
-
+        # Lọc 10 năm gần nhất
+        df_h = df_h[df_h["year"] >= df_h["year"].max() - 10]
+        
         color = COLORS.get(heat_comm, "#06b6d4")
-        r,g,b = tuple(int(color.lstrip('#')[i:i+2],16) for i in (0,2,4))
-        fig_h = go.Figure(go.Heatmap(
-            z=pivot.values, x=pivot.columns.tolist(), y=pivot.index.tolist(),
-            colorscale=[
-                [0,   f"rgba({r},{g},{b},0.1)"],
-                [0.5, f"rgba({r},{g},{b},0.55)"],
-                [1,   f"rgba({r},{g},{b},1)"],
-            ],
-            text=[[f"{v:.3f}" for v in row] for row in pivot.values],
-            texttemplate="%{text}", textfont=dict(size=11, color="white"),
-            hoverongaps=False,
-            hovertemplate="Năm %{y} · %{x}<br>Giá: %{z:.4f} "+cur+"/kg<extra></extra>",
+        fig_h = go.Figure(go.Box(
+            x=df_h["year"], y=df_h["price"],
+            name="Giá", marker_color=color,
+            boxmean=True,
+            hovertemplate="Năm %{x}<br>Giá: %{y:,.4f} "+cur+"/kg<extra></extra>"
         ))
         fig_h = styled_axes(fig_h, height=290)
-        fig_h.update_layout(title=dict(text=f"Giá {COMMODITY_VI.get(heat_comm,'')} (mùa vụ)", font=dict(size=13, color="#94a3b8")))
+        fig_h.update_layout(
+            xaxis_title="", yaxis_title=f"{cur}/kg",
+            title=dict(text=f"Biên độ giá {COMMODITY_VI.get(heat_comm,'')} (10 năm)", font=dict(size=13, color="#94a3b8"))
+        )
+        fig_h.update_xaxes(type='category')
         st.plotly_chart(fig_h, use_container_width=True)
 
     with c_right:
@@ -855,30 +907,57 @@ elif page == "Dự báo":
         st.plotly_chart(fig_p, use_container_width=True)
 
     else:
-        st.success(f"✅ Đã có {len(df_fc)} bản ghi dự báo")
+        st.success(f"✅ Đã có {len(df_fc)} bản ghi dự báo bằng Machine Learning")
         fc_c = st.selectbox("Mặt hàng", selected,
             format_func=lambda x:f"{COMMODITY_EMOJI.get(x,'')} {COMMODITY_VI.get(x,x)}")
         df_h = df[df["commodity"]==fc_c].sort_values("price_date").tail(24)
         df_f = df_fc[df_fc["commodity"]==fc_c].sort_values("forecast_date")
-        color = COLORS.get(fc_c,"#06b6d4")
-        r2,g2,b2 = tuple(int(color.lstrip('#')[i:i+2],16) for i in (0,2,4))
+        
+        if not df_h.empty and not df_f.empty:
+            last_h = df_h.iloc[-1]
+            last_price = last_h["price"]
+            
+            # Prepend history to forecast to close the visual gap
+            fut_dates = [last_h["price_date"]] + df_f["forecast_date"].tolist()
+            fut_prices = [last_price] + (df_f["predicted_price"] * mult).tolist()
+            ci_uppers = [last_price] + (df_f["ci_upper"] * mult).tolist()
+            ci_lowers = [last_price] + (df_f["ci_lower"] * mult).tolist()
+            
+            # Insights
+            fc_last = fut_prices[-1]
+            pct_change = (fc_last - last_price) / last_price * 100
+            trend = "Tăng" if pct_change > 0 else "Giảm"
+            
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.metric("Giá hiện tại", f"{last_price:,.2f} {cur}/kg")
+            with c2:
+                st.metric("Dự báo (cuối kỳ 6T)", f"{fc_last:,.2f} {cur}/kg", f"{pct_change:+.2f}%")
+            
+            color = COLORS.get(fc_c,"#06b6d4")
+            r2,g2,b2 = tuple(int(color.lstrip('#')[i:i+2],16) for i in (0,2,4))
 
-        fig_f = go.Figure()
-        fig_f.add_trace(go.Scatter(x=df_h["price_date"],y=df_h["price"],
-            name="Lịch sử", line=dict(color=color,width=2.5)))
-        fig_f.add_trace(go.Scatter(x=df_f["forecast_date"],y=df_f["predicted_price"]*mult,
-            name="Dự báo LSTM", line=dict(color="#f59e0b",width=2.5,dash="dash")))
-        if "ci_upper" in df_f.columns:
-            fig_f.add_trace(go.Scatter(
-                x=list(df_f["forecast_date"])+list(df_f["forecast_date"][::-1]),
-                y=list(df_f["ci_upper"]*mult)+list(df_f["ci_lower"][::-1]*mult),
-                fill="toself", fillcolor=f"rgba({r2},{g2},{b2},0.12)",
-                line=dict(color="rgba(0,0,0,0)"), name="CI 95%"))
-        fig_f.add_vline(x=df_h["price_date"].max(), line_dash="dot",
-            line_color="rgba(255,255,255,.3)")
-        fig_f = styled_axes(fig_f, height=430)
-        fig_f.update_layout(yaxis_title=f"Giá ({cur}/kg)")
-        st.plotly_chart(fig_f, use_container_width=True)
+            fig_f = go.Figure()
+            fig_f.add_trace(go.Scatter(x=df_h["price_date"],y=df_h["price"],
+                name="Lịch sử", line=dict(color=color,width=2.5)))
+            fig_f.add_trace(go.Scatter(x=fut_dates, y=fut_prices,
+                name="Dự báo LSTM", line=dict(color="#f59e0b",width=2.5,dash="dash")))
+            if "ci_upper" in df_f.columns:
+                fig_f.add_trace(go.Scatter(
+                    x=fut_dates + fut_dates[::-1],
+                    y=ci_uppers + ci_lowers[::-1],
+                    fill="toself", fillcolor=f"rgba({r2},{g2},{b2},0.12)",
+                    line=dict(color="rgba(0,0,0,0)"), name="CI 95%"))
+            fig_f.add_vline(x=last_h["price_date"], line_dash="dot",
+                line_color="rgba(255,255,255,.3)")
+            fig_f = styled_axes(fig_f, height=430)
+            fig_f.update_layout(yaxis_title=f"Giá ({cur}/kg)")
+            st.plotly_chart(fig_f, use_container_width=True)
+            
+            if abs(pct_change) > 5:
+                st.info(f"💡 **Insight:** Mô hình AI nhận định giá {COMMODITY_VI.get(fc_c,fc_c)} có xu hướng **{trend} khá rõ** trong thời gian tới. Nên theo dõi sát sao chiến lược mua/bán.")
+            else:
+                st.info(f"💡 **Insight:** Giá {COMMODITY_VI.get(fc_c,fc_c)} dự kiến sẽ đi ngang (sideway) hoặc chỉ biến động nhẹ. Thị trường tương đối bình ổn.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════

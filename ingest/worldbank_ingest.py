@@ -43,9 +43,8 @@ def ingest_worldbank():
         mapping = {
             find_col("Coffee, Arabica"): "coffee",
             find_col("Rice, Thai 5%"): "rice",
-            find_col("Rubber, TSR20"): "rubber",
             find_col("Cocoa"): "cocoa",
-            find_col("Cotton"): "cotton"
+            find_col("Cotton, A Index"): "cotton"
         }
 
         # Lọc bỏ các cột không tìm thấy

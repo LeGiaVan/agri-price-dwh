@@ -1,0 +1,56 @@
+name: Daily YF Ingest & Alert
+
+on:
+  schedule:
+    # Chạy vào lúc 00:00 UTC (khoảng 7h sáng VN, sau khi phiên Mỹ đóng cửa)
+    - cron: '0 0 * * 2-6'
+  workflow_dispatch: # Cho phép chạy thủ công
+
+jobs:
+  ingest-alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ingest/requirements.txt
+
+      - name: Run Daily YF Ingestion and Alerting
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+        run: python ingest/daily_yf_alert_ingest.py
+
+      - name: Run dbt build
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: |
+          dbt seed --project-dir dbt --profiles-dir dbt
+          dbt build --project-dir dbt --profiles-dir dbt
+
+      - name: Run ML Forecasting
+        env:
+          MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        run: |
+          python ml/scripts/train.py
+          python ml/scripts/predict.py
+
+      - name: Upload ingest logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest-logs-daily
+          path: logs/
+          if-no-files-found: ignore

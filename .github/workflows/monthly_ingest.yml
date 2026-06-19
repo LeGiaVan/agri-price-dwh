@@ -1,22 +1,14 @@
-name: Monthly Ingest
+name: Monthly WB Ingest
 
 on:
-  push:
-    branches:
-      - dev
   schedule:
-    - cron:
-  push:
-    branches:
-      - dev '0 17 1 * *'
-  workflow_dispatch:
+    # Chạy vào lúc 02:00 ngày 1 hàng tháng
+    - cron: '0 2 1 * *'
+  workflow_dispatch: # Cho phép chạy thủ công
 
 jobs:
-  ingest:
-    runs-on:
-  push:
-    branches:
-      - dev ubuntu-latest
+  monthly-ingest:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
@@ -25,32 +17,28 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version:
-  push:
-    branches:
-      - dev '3.11'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r ingest/requirements.txt
 
-      - name: Run Monthly Incremental Ingestion
+      - name: Run Monthly WorldBank Ingestion
         env:
           MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
-        run: python ingest/daily_cron.py
+        run: python ingest/worldbank_ingest.py
 
-      - name: Run dbt seed and build
+      - name: Run dbt build
         env:
           MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: |
-          dbt seed --project-dir dbt --profiles-dir dbt
           dbt build --project-dir dbt --profiles-dir dbt
 
       - name: Upload ingest logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ingest-logs
+          name: ingest-logs-monthly
           path: logs/
           if-no-files-found: ignore
