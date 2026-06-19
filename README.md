@@ -3,7 +3,8 @@
 > **Data Warehouse — Analysis & Forecasting of Vietnam Agricultural Prices**  
 > Course: Data Warehouse & Integration | Team of 5 | 2025
 
-[![Ingest Status](https://github.com/{ORG}/agri-price-dwh/actions/workflows/ingest.yml/badge.svg)](https://github.com/{ORG}/agri-price-dwh/actions)
+[![Daily Ingest & Alert](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/daily_ingest.yml/badge.svg)](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/daily_ingest.yml)
+[![Monthly World Bank Ingest](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/monthly_ingest.yml/badge.svg)](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/monthly_ingest.yml)
 
 ---
 
@@ -30,12 +31,51 @@ World Bank API / Yahoo Finance
   ┌─────────────┐
   │    GOLD     │  Kimball Star Schema + ML features
   └──────┬──────┘
-         │
+        │
     ┌────┴────┐
     ▼         ▼
   LSTM      Streamlit Dashboard
-  ARIMA     + Groq GenBI Chat
+ (PyTorch)  + Groq GenBI Chat
 ```
+
+---
+
+## 📸 Screenshots & Features
+
+<div align="center">
+  <img src="imgs/homepage.png" alt="Homepage" width="800"/>
+  <p><i>Main Dashboard - Market Overview</i></p>
+</div>
+
+<details>
+<summary><b>Click here to view more features!</b></summary>
+
+### 📈 Technical & Seasonal Analysis
+<div align="center">
+  <img src="imgs/analysis.png" alt="Analysis" width="800"/>
+</div>
+
+### 🔮 AI Price Forecasting (PyTorch LSTM)
+<div align="center">
+  <img src="imgs/forecast.png" alt="Forecast" width="800"/>
+</div>
+
+### 🤖 GenBI Virtual Assistant (Groq Llama 3)
+<div align="center">
+  <img src="imgs/ai_chatbot.png" alt="AI Chatbot" width="800"/>
+</div>
+
+### ⚠️ Automated Price Alerts (Email Integration)
+<div align="center">
+  <img src="imgs/price_alert.png" alt="Price Alert" width="800"/>
+</div>
+
+### ⚙️ Interactive Filtering
+<div align="center">
+  <img src="imgs/filter.png" alt="Filter" width="800"/>
+</div>
+
+</details>
 
 ---
 
@@ -82,7 +122,7 @@ agri-price-dwh/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/{ORG}/agri-price-dwh.git
+git clone https://github.com/LeGiaVan/agri-price-dwh.git
 cd agri-price-dwh
 ```
 
@@ -156,9 +196,9 @@ make start-all            # Linux/Mac
 
 | Model | Library | Objective | Metrics |
 |---|---|---|---|
-| **ARIMA** | `pmdarima` | Baseline 30-day forecasting | RMSE, MAPE |
-| **LSTM** | `TensorFlow/Keras` | Advanced forecasting | RMSE, MAPE |
-| **SHAP** | `shap` | Feature importance explanation | — |
+| **LSTM** | `PyTorch` | Time-series forecasting for the next 6 months using `price`, `lag`, `30d_avg` | MAPE < 10% |
+| **GenBI** | `Groq` | Llama-3-70b powered Chatbot for real-time market data analysis | Response Time, Token Usage |
+| **Alerts** | `smtplib` | Automated email alerts powered by AI-generated insights on sudden price drops | Delivery Success |
 
 ---
 
