@@ -14,29 +14,21 @@ A system that collects, cleans, stores, and forecasts prices for key agricultura
 
 Architecture: **Medallion Architecture (Bronze → Silver → Gold)** built on MotherDuck + dbt + Streamlit GenBI.
 
-```text
-World Bank API / Yahoo Finance
-        │
-        ▼ (GitHub Actions, Monthly Cron or Manual)
-  ┌─────────────┐
-  │   BRONZE    │  Raw, unmodified data (yf_prices_raw, etc.)
-  └──────┬──────┘
-         │ dbt
-         ▼
-  ┌─────────────┐
-  │   SILVER    │  Cleaned and standardized
-  └──────┬──────┘
-         │ dbt
-         ▼
-  ┌─────────────┐
-  │    GOLD     │  Kimball Star Schema + ML features
-  └──────┬──────┘
-        │
-    ┌────┴────┐
-    ▼         ▼
-  LSTM      Streamlit Dashboard
- (PyTorch)  + Groq GenBI Chat
+```mermaid
+flowchart TB
+    A["World Bank API / Yahoo Finance"] -->|"GitHub Actions<br/>Monthly Cron or Manual"| B["BRONZE<br/>Raw, unmodified data<br/>(yf_prices_raw, etc.)"]
+    B -->|dbt| C["SILVER<br/>Cleaned and standardized"]
+    C -->|dbt| D["GOLD<br/>Kimball Star Schema + ML features"]
+    D --> E["LSTM<br/>(PyTorch)"]
+    D --> F["Streamlit Dashboard<br/>+ Groq GenBI Chat"]
 ```
+
+### 📐 Full Data Lineage Diagram
+
+<div align="center">
+  <img src="Data_lineage.drawio.svg" alt="Data Lineage" width="1000"/>
+  <p><i>Data Lineage — agri-price-dwh (Source → Bronze → Silver → Gold → Consumption)</i></p>
+</div>
 
 ---
 
