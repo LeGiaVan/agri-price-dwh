@@ -60,9 +60,26 @@ def get_market_summary(df: pd.DataFrame, cur: str, mult: float) -> str:
         emoji = COMMODITY_EMOJI.get(row["commodity"], "")
         lines.append(f"  {emoji} {name}: {row['price']:.4f} {cur}/kg")
 
+    # Tính toán trung bình năm cho 3 năm gần nhất để AI có dữ liệu so sánh
+    df_yr = df.copy()
+    df_yr["year"] = df_yr["price_date"].dt.year
+    recent_years = sorted(df_yr["year"].unique())[-4:]  # Lấy 4 năm gần nhất (VD: 2023, 2024, 2025, 2026)
+    
     lines += [
         "",
-        f"Dữ liệu lịch sử: {df['price_date'].min().strftime('%m/%Y')} → {df['price_date'].max().strftime('%m/%Y')}",
+        "LỊCH SỬ GIÁ TRUNG BÌNH THEO NĂM (Quy đổi USD/kg):",
+    ]
+    for y in recent_years:
+        df_y = df_yr[df_yr["year"] == y]
+        y_prices = []
+        for comm in df_y["commodity"].unique():
+            avg_p = df_y[df_y["commodity"] == comm]["price_usd_per_kg"].mean() * mult
+            y_prices.append(f"{COMMODITY_VI.get(comm, comm)}: {avg_p:.2f}")
+        lines.append(f"  Năm {y}: " + " | ".join(y_prices))
+
+    lines += [
+        "",
+        f"Dữ liệu bắt đầu từ: {df['price_date'].min().strftime('%m/%Y')} → Cập nhật mới nhất: {df['price_date'].max().strftime('%m/%Y')}",
         "Nguồn: World Bank & Yahoo Finance",
         "5 mặt hàng xuất khẩu chủ lực của Việt Nam: gạo, cà phê, tiêu, hạt điều, cao su",
     ]
@@ -81,18 +98,18 @@ def call_groq(user_prompt: str, market_context: str, history: list) -> str:
 
     client = Groq(api_key=api_key)
 
-    system_prompt = f"""Bạn là chuyên gia phân tích thị trường nông sản Việt Nam với hơn 10 năm kinh nghiệm.
+    system_prompt = f"""Bạn là trợ lý AI phân tích thị trường nông sản Việt Nam với hơn 10 năm kinh nghiệm (AgriPrice GenBI).
 Bạn am hiểu sâu về 5 mặt hàng xuất khẩu chủ lực: gạo, cà phê, tiêu, hạt điều và cao su.
 
-Dưới đây là dữ liệu thị trường thực tế (cập nhật mới nhất):
+Dưới đây là BỐI CẢNH DỮ LIỆU THỊ TRƯỜNG MỚI NHẤT & LỊCH SỬ:
 {market_context}
 
-Nguyên tắc trả lời:
-- Luôn trả lời bằng tiếng Việt, ngắn gọn và chuyên nghiệp
-- Dựa vào số liệu thực tế trên để phân tích, KHÔNG bịa đặt số liệu
-- Nêu rõ xu hướng, rủi ro và cơ hội nếu phù hợp
-- Kết thúc bằng 1 khuyến nghị cụ thể nếu người dùng hỏi về quyết định kinh doanh
-- Dùng emoji phù hợp để dễ đọc"""
+Nguyên tắc trả lời (RẤT QUAN TRỌNG):
+- Xưng "tôi" và gọi người dùng là "bạn" một cách tự tin, sắc bén và chuyên nghiệp.
+- KHÔNG BAO GIỜ nói "Xin lỗi, tôi không có dữ liệu...". Hãy luôn tận dụng dữ liệu lịch sử giá trung bình theo năm (như 2024, 2025, v.v.) và giá hiện tại ở context trên để phân tích.
+- Khi người dùng yêu cầu so sánh (ví dụ: giá năm 2024), hãy lấy dữ liệu trung bình năm 2024 trong context, tính toán phần trăm chênh lệch và đưa ra góc nhìn chuyên sâu.
+- Phân tích đa chiều: ngoài việc đọc số liệu, hãy nhận định xu hướng vĩ mô, chu kỳ mùa vụ, và đưa ra lời khuyên thực tế (nên mua/bán, trữ hàng hay không).
+- Dùng emoji phù hợp để làm nổi bật các ý chính, định dạng in đậm các con số quan trọng."""
 
     messages = [{"role": "system", "content": system_prompt}]
     for msg in history[-6:]:  # Giữ 6 lượt gần nhất

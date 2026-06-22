@@ -453,7 +453,8 @@ def normalize_price_rows(raw: pd.DataFrame) -> pd.DataFrame:
     )
 
     by_comm = grouped.groupby("commodity")["price_usd_per_kg"]
-    grouped["price_change_pct"] = by_comm.pct_change() * 100
+    # Tính pct_change(periods=30) để tính tháng-qua-tháng thay vì ngày-qua-ngày
+    grouped["price_change_pct"] = by_comm.pct_change(periods=30) * 100
     grouped["price_7d_avg"] = by_comm.transform(lambda s: s.rolling(7, min_periods=1).mean())
     grouped["price_30d_avg"] = by_comm.transform(lambda s: s.rolling(30, min_periods=1).mean())
     return grouped
@@ -638,8 +639,16 @@ if page == "Tổng quan":
         if df_c.empty: continue
         lat        = df_c.iloc[-1]
         price_now  = lat["price"]
-        chg        = lat["price_change_pct"]
-        chg_value  = 0 if pd.isna(chg) else chg
+        
+        # Tìm giá của 30 ngày trước để so sánh (vs tháng trước)
+        cutoff_month = lat["price_date"] - pd.DateOffset(days=30)
+        df_past = df_c[df_c["price_date"] <= cutoff_month]
+        if not df_past.empty:
+            price_past = df_past.iloc[-1]["price"]
+            chg_value = ((price_now - price_past) / price_past) * 100 if price_past else 0
+        else:
+            chg_value = 0
+            
         cutoff     = lat["price_date"] - pd.DateOffset(weeks=52)
         df52       = df_c[df_c["price_date"] >= cutoff]
         hi52, lo52 = df52["price"].max(), df52["price"].min()
