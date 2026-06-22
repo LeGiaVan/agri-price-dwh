@@ -26,7 +26,7 @@ flowchart TB
 ### 📐 Full Data Lineage Diagram
 
 <div align="center">
-  <img src="Data_lineage.drawio.png" alt="Data Lineage" width="1000"/>
+  <img src="Data_lineage.drawio.svg" alt="Data Lineage" width="1000"/>
   <p><i>Data Lineage — agri-price-dwh (Source → Bronze → Silver → Gold → Consumption)</i></p>
 </div>
 
