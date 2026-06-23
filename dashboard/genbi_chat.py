@@ -67,7 +67,7 @@ def get_market_summary(df: pd.DataFrame, cur: str, mult: float) -> str:
     
     lines += [
         "",
-        "LỊCH SỬ GIÁ TRUNG BÌNH THEO NĂM (Quy đổi USD/kg):",
+        f"LỊCH SỬ GIÁ TRUNG BÌNH THEO NĂM (Quy đổi {cur}/kg):",
     ]
     for y in recent_years:
         df_y = df_yr[df_yr["year"] == y]

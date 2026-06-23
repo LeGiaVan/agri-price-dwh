@@ -1,10 +1,12 @@
-# 🌾 agri-price-dwh
+# 🌾 Agri-Price Data Warehouse
 
-> **Data Warehouse — Analysis & Forecasting of Vietnam Agricultural Prices**  
-> Course: Data Warehouse & Integration | Team of 5 | 2025
+> **An end-to-end data warehousing solution for the analysis and forecasting of agricultural commodity prices in Vietnam.**  
+
 
 [![Daily Ingest & Alert](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/daily_ingest.yml/badge.svg)](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/daily_ingest.yml)
 [![Monthly World Bank Ingest](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/monthly_ingest.yml/badge.svg)](https://github.com/LeGiaVan/agri-price-dwh/actions/workflows/monthly_ingest.yml)
+
+**🌐 Live Dashboard:** [Explore Agri-Price Insights](https://agri-price-dwh-gugvpqkzaqhdhsphfn35mw.streamlit.app/)
 
 ---
 
@@ -14,19 +16,15 @@ A system that collects, cleans, stores, and forecasts prices for key agricultura
 
 Architecture: **Medallion Architecture (Bronze → Silver → Gold)** built on MotherDuck + dbt + Streamlit GenBI.
 
-```mermaid
-flowchart TB
-    A["World Bank API / Yahoo Finance"] -->|"GitHub Actions<br/>Monthly Cron or Manual"| B["BRONZE<br/>Raw, unmodified data<br/>(yf_prices_raw, etc.)"]
-    B -->|dbt| C["SILVER<br/>Cleaned and standardized"]
-    C -->|dbt| D["GOLD<br/>Kimball Star Schema + ML features"]
-    D --> E["LSTM<br/>(PyTorch)"]
-    D --> F["Streamlit Dashboard<br/>+ Groq GenBI Chat"]
-```
+<div align="center">
+  <img src="imgs/architechture.png" alt="Homepage" width="800"/>
+  <p><i>Architecture</i></p>
+</div>
 
 ### 📐 Full Data Lineage Diagram
 
 <div align="center">
-  <img src="Data_lineage.drawio.svg" alt="Data Lineage" width="1000"/>
+  <img src="imgs/Data_lineage.drawio.svg" alt="Data Lineage" width="1000"/>
   <p><i>Data Lineage — agri-price-dwh (Source → Bronze → Silver → Gold → Consumption)</i></p>
 </div>
 
