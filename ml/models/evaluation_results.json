@@ -1,0 +1,58 @@
+[
+  {
+    "commodity": "cocoa",
+    "n_train": 432,
+    "n_test": 108,
+    "date_range_test": "2026-03-09 → 2026-06-24",
+    "mse": 0.030385,
+    "rmse": 0.174314,
+    "mae": 0.140676,
+    "mape_pct": 1.55,
+    "actual_mean": 9.0458,
+    "pred_mean": 9.0464,
+    "actual_min": 8.434,
+    "actual_max": 9.5
+  },
+  {
+    "commodity": "coffee",
+    "n_train": 432,
+    "n_test": 108,
+    "date_range_test": "2026-03-09 → 2026-06-24",
+    "mse": 0.010135,
+    "rmse": 0.100675,
+    "mae": 0.081024,
+    "mape_pct": 1.43,
+    "actual_mean": 5.6662,
+    "pred_mean": 5.6723,
+    "actual_min": 5.2574,
+    "actual_max": 5.8
+  },
+  {
+    "commodity": "cotton",
+    "n_train": 432,
+    "n_test": 108,
+    "date_range_test": "2026-03-09 → 2026-06-24",
+    "mse": 0.001019,
+    "rmse": 0.031929,
+    "mae": 0.026658,
+    "mape_pct": 1.23,
+    "actual_mean": 2.1861,
+    "pred_mean": 2.1883,
+    "actual_min": 1.9535,
+    "actual_max": 2.456
+  },
+  {
+    "commodity": "rice",
+    "n_train": 432,
+    "n_test": 108,
+    "date_range_test": "2026-03-09 → 2026-06-24",
+    "mse": 6.3e-05,
+    "rmse": 0.007959,
+    "mae": 0.006265,
+    "mape_pct": 1.12,
+    "actual_mean": 0.5592,
+    "pred_mean": 0.5588,
+    "actual_min": 0.5265,
+    "actual_max": 0.5963
+  }
+]
