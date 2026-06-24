@@ -15,65 +15,18 @@ A system that collects, cleans, stores, and forecasts prices for key agricultura
 Architecture: **Medallion Architecture (Bronze → Silver → Gold)** built on MotherDuck + dbt + Streamlit GenBI.
 
 ```mermaid
-flowchart LR
-    subgraph SRC["📡 NGUỒN DỮ LIỆU"]
-        WB["🌐 World Bank API\nPink Sheet\nLịch: ngày 1 / tháng"]
-        YF["📈 Yahoo Finance\nclose price\nLịch: Thứ 3–6, 7h sáng VN"]
-        FAO["🌿 FAO HuggingFace\nLịch: thủ công / khi cần"]
-    end
-
-    subgraph BRZ["🟫 BRONZE — Raw"]
-        B1[bronze.wb_prices_raw]
-        B2[bronze.yf_prices_raw]
-        B3[bronze.fao_prices_raw]
-        SEED["seed: commodity_mapping.csv"]
-    end
-
-    subgraph SLV["🔵 SILVER — Cleaned"]
-        S1["silver_wb_prices\nCAST /1000 ton→kg\ndedup ROW_NUMBER"]
-        S2["silver_yf_prices\nCAST, fill-forward\nLAST_VALUE, dedup"]
-        S3["silver_fao_prices\nCAST /0.45 lb→kg\ndedup"]
-    end
-
-    subgraph GLD["🥇 GOLD — Star Schema + ML"]
-        DD["dim_date\n2000–2026, ~9862 rows"]
-        DC["dim_commodity\n5 hàng hóa VN"]
-        DR["dim_region\nunion WB + YF"]
-        FACT["fact_price_daily\nPK = MD5 hash\nprice_change_pct\n7d/30d avg"]
-        ML["gold_ml_features\nlag 1/7/30, MA 7/30/90\nvolatility, harvest_flag\n17 features"]
-        MONTHLY[gold_monthly_combined]
-    end
-
-    subgraph CON["🟢 Consumption"]
-        LSTM["🧠 LSTM PyTorch\nml/lstm_forecast.py\n→ gold.forecast_lstm\n→ gold.model_metrics"]
-        DASH["📊 Streamlit Dashboard\napp.py\nmetric cards, charts\nheatmap, ML predictions"]
-        CHAT["🤖 GenBI Chat\ngenbi_chat.py\nGroq Llama-3-70b"]
-        ALERT["📧 Email Alerts\nsmtplib\nngưỡng biến động giá"]
-    end
-
-    WB -->|worldbank_ingest.py| B1
-    YF -->|daily_yf_alert_ingest.py| B2
-    FAO --> B3
-
-    B1 -->|dbt| S1
-    B2 -->|dbt| S2
-    B3 -->|dbt| S3
-    SEED -.->|dbt seed| GLD
-
-    S1 & S2 & S3 -->|dbt| DD & DC & DR & FACT
-    FACT -->|window fn| ML
-    S1 & S2 -->|dbt| MONTHLY
-
-    ML --> LSTM
-    FACT & ML --> DASH
-    FACT --> CHAT
-    FACT --> ALERT
+flowchart TB
+    A["World Bank API / Yahoo Finance"] -->|"GitHub Actions<br/>Monthly Cron or Manual"| B["BRONZE<br/>Raw, unmodified data<br/>(yf_prices_raw, etc.)"]
+    B -->|dbt| C["SILVER<br/>Cleaned and standardized"]
+    C -->|dbt| D["GOLD<br/>Kimball Star Schema + ML features"]
+    D --> E["LSTM<br/>(PyTorch)"]
+    D --> F["Streamlit Dashboard<br/>+ Groq GenBI Chat"]
 ```
 
 ### 📐 Full Data Lineage Diagram
 
 <div align="center">
-  <img src="data_lineage.drawio.png" alt="Data Lineage" width="1000"/>
+  <img src="Data_lineage.drawio.svg" alt="Data Lineage" width="1000"/>
   <p><i>Data Lineage — agri-price-dwh (Source → Bronze → Silver → Gold → Consumption)</i></p>
 </div>
 
